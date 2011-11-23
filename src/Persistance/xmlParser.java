@@ -41,18 +41,14 @@ public final class xmlParser {
     private void initialize() {
 
         try {
-            File file;
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
             InputStream is = null;
-            try {
-                is = this.getClass().getClassLoader().getResourceAsStream("data.xml");
-            } catch (Exception e) {
-                //fall back on default template if data.xml is missing
-                is = this.getClass().getClassLoader().getResourceAsStream("Persistance/defaultTemplate.xml");
-                
-            }
 
+            is = this.getClass().getClassLoader().getResourceAsStream("data.xml");
+            if (is == null) {
+                is = this.getClass().getClassLoader().getResourceAsStream("defaultTemplate.xml");
+            }
             Document doc = docBuilder.parse(is);
 
             // normalize text representation

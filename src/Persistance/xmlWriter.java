@@ -34,13 +34,13 @@ public final class xmlWriter {
         outputStream.write(
                 "<Servers><SERVER_ASSOCIATIONS>1\n");
         outputStream.write(
-                "<ip>" + ip + "</ip>\n");
+                "<ip>" + ip + " </ip>\n");
         outputStream.write(
-                "<port>" + port + "</port> \n");
+                "<port>" + port + " </port> \n");
         outputStream.write(
-                "<name>" + playerName + "</name>\n");
+                "<name>" + playerName + " </name>\n");
         outputStream.write(
-                "<exePath>" + path + "</exePath>");
+                "<exePath>" + path + " </exePath>");
         outputStream.write(
                 "</SERVER_ASSOCIATIONS>\n");
         outputStream.write(
