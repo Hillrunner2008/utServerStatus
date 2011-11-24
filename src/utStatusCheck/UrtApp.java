@@ -167,6 +167,7 @@ public class UrtApp extends javax.swing.JDialog {
         textArea.append("I owe credit to a few open source projects for bits and pieces of code." + newline  + newline);
         textArea.append("1. The author of the AePlayWave java sound player." + newline);
         textArea.append("2. 1up ModRcon group (for some server query code)" + newline);
+        textArea.append("3. Main Image credit goes to author of the Urban Terror PHP Server Status project" + newline);
         textArea.setColumns(35);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
