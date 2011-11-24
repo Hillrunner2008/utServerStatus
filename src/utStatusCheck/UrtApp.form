@@ -12,6 +12,14 @@
             <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="JMenuItem exit = new JMenuItem(&quot;Exit&quot;);&#xa;&#x9;&#x9;&#xa;&#x9;&#x9;exit.addActionListener(new ActionListener() {&#xa;&#x9;&#x9;&#x9;public void actionPerformed(ActionEvent e) {&#xa;&#x9;&#x9;&#x9;&#x9;System.exit(0);&#xa;&#x9;&#x9;&#x9;}&#xa;&#x9;&#x9;});&#xa;jMenu1.add(exit);"/>
           </AuxValues>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="jMenu2">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Credits"/>
+          </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jMenu2MouseClicked"/>
+          </Events>
+        </Menu>
       </SubComponents>
     </Menu>
   </NonVisualComponents>

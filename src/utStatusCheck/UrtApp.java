@@ -14,6 +14,8 @@ import java.util.Arrays;
 import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
 
 public class UrtApp extends javax.swing.JDialog {
 
@@ -53,6 +55,7 @@ public class UrtApp extends javax.swing.JDialog {
         jButton1 = new javax.swing.JButton();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
+        jMenu2 = new javax.swing.JMenu();
 
         setName("mainPanel"); // NOI18N
         setResizable(false);
@@ -93,6 +96,14 @@ public class UrtApp extends javax.swing.JDialog {
         jMenu1.add(exit);
 
         jMenuBar1.add(jMenu1);
+
+        jMenu2.setText("Credits");
+        jMenu2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu2MouseClicked(evt);
+            }
+        });
+        jMenuBar1.add(jMenu2);
 
         setJMenuBar(jMenuBar1);
 
@@ -149,6 +160,20 @@ public class UrtApp extends javax.swing.JDialog {
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    private void jMenu2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu2MouseClicked
+        String newline = "\n";
+        String text = "Designed and Programmed by: David C. Norris" + newline  + newline;
+        JTextArea textArea = new JTextArea(text);
+        textArea.append("I owe credit to a few open source projects for bits and pieces of code." + newline  + newline);
+        textArea.append("1. The author of the AePlayWave java sound player." + newline);
+        textArea.append("2. 1up ModRcon group (for some server query code)" + newline);
+        textArea.setColumns(35);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setSize(textArea.getPreferredSize().width, 1);
+        JOptionPane.showMessageDialog(null, textArea, "", JOptionPane.PLAIN_MESSAGE);
+    }//GEN-LAST:event_jMenu2MouseClicked
+
     @Override
     public void setDefaultCloseOperation(int operation) {
         super.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -159,6 +184,7 @@ public class UrtApp extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel mapNameLabel;
@@ -190,7 +216,7 @@ public class UrtApp extends javax.swing.JDialog {
 
         mapName = (String) serverInfo.get("mapname");
         level_Image = mapName;
-         ClassLoader classloader = getClass().getClassLoader();
+        ClassLoader classloader = getClass().getClassLoader();
         if (classloader.getResource("images/" + level_Image + ".jpg") != null) {
             jLabel4.setIcon(new javax.swing.ImageIcon(classloader.getResource("images/" + level_Image + ".jpg")));
         }
