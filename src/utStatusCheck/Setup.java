@@ -11,8 +11,8 @@
 package utStatusCheck;
 
 import Globals.Constants;
-import Persistance.xmlParser;
-import Persistance.xmlWriter;
+import Persistence.xmlParser;
+import Persistence.xmlWriter;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
