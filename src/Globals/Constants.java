@@ -40,7 +40,7 @@ public final class Constants {
     }
 
     public static String getPortString() {
-        return ip.toString();
+        return Integer.toString(port);
     }
 
     public static String getPlayerName() {
