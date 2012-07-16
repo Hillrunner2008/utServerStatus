@@ -18,6 +18,11 @@ public class TableModel extends AbstractTableModel {
     private static final int pingColumn = 1;
     private static final int scoreColumn = 2;
     private ArrayList<ArrayList<String>> tableData = new ArrayList<ArrayList<String>>();
+    private ArrayList<Player> players = new ArrayList<Player>();
+
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
 
     public int getColumnCount() {
         return columnNames.length;
@@ -27,25 +32,15 @@ public class TableModel extends AbstractTableModel {
         return (tableData == null) ? 0 : tableData.size();
     }
 
-    public void setData(ArrayList<String> data) {
+    public void setData(ArrayList<Player> players) {
+        this.players=players;
         tableData.clear();
-        char startPosition = '"';
-        for (String s : data) {
-            ArrayList<String> playerData = new ArrayList<String>();
-            String ans = "";
-            Scanner sc = new Scanner(s);
-            for (int i = 0; i < s.length(); i++) {
-                if (s.charAt(i)==startPosition) {
-                    for (int j = i+1; j < s.length() - 1; j++) {
-                        ans += s.charAt(j);
-                    }
-                    break;
-                }
-            }
-            playerData.add(ans);
-            Integer score = sc.nextInt();
+        for (Player p : players) {
+            ArrayList<String> playerData = new ArrayList<String>();      
+            playerData.add(p.getName());
+            Integer score = p.getScore();
             playerData.add(score.toString());
-            Integer ping = sc.nextInt();
+            Integer ping = p.getPing();
             playerData.add(ping.toString());
             tableData.add(playerData);
         }

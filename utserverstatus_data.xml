@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+Created on : September 27, 2011, 4:39 PM
+Author     : dcnorris
+-->
+<Servers><SERVER_ASSOCIATIONS>1
+<ip>173.236.38.242 </ip>
+<port>27961 </port> 
+<name>Hillrunner2008 </name>
+<exePath>C:/Program Files (x86)/UrbanTerror/ioUrbanTerror.exe </exePath></SERVER_ASSOCIATIONS>
+</Servers>
