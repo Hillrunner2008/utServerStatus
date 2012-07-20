@@ -3,24 +3,23 @@
  * @author dcnorris
  * Created on Jul 30, 2011, 7:44:59 PM
  */
-package utStatusCheck;
+package GUI;
 
-import Sound.SoundPlayerService;
 import Globals.Constants;
+import Server.ServerQuery;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Map;
 import javax.swing.JFrame;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JTextArea;
+import utStatusCheck.Player;
 
 public class UrtApp extends javax.swing.JDialog {
 
-    private SoundPlayerService server;
     int maxClients = 0;
     int activeClients = 0;
     String results;
@@ -35,7 +34,6 @@ public class UrtApp extends javax.swing.JDialog {
      */
     @SuppressWarnings("SleepWhileInLoop")
     public UrtApp() throws Exception {
-        server = new SoundPlayerService();
         initComponents();
     }
 
@@ -63,13 +61,13 @@ public class UrtApp extends javax.swing.JDialog {
         setName("mainPanel"); // NOI18N
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24));
+        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
         jLabel1.setText("Server:  ");
 
-        resultsLabel.setFont(new java.awt.Font("Tahoma", 0, 18));
+        resultsLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         resultsLabel.setText("0 / 16 currently playing");
 
-        mapNameLabel.setFont(new java.awt.Font("Tahoma", 0, 18));
+        mapNameLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         mapNameLabel.setText("Map: ");
 
         jLabel3.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/urbanterror.jpg"))); // NOI18N
@@ -79,7 +77,7 @@ public class UrtApp extends javax.swing.JDialog {
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/"+ level_Image +".jpg")));
 
-        jButton1.setFont(new java.awt.Font("SansSerif", 1, 14));
+        jButton1.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
         jButton1.setText("Join Server");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -116,18 +114,20 @@ public class UrtApp extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                    .addComponent(resultsLabel)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(mapNameLabel)
-                    .addComponent(jLabel1)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(14, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(32, Short.MAX_VALUE)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(45, 45, 45))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                            .addComponent(resultsLabel)
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(mapNameLabel)
+                            .addComponent(jLabel1)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addContainerGap(14, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 22, Short.MAX_VALUE)
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(45, 45, 45))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -262,4 +262,29 @@ public class UrtApp extends javax.swing.JDialog {
         processBuilder.directory(new File(game.getParent()));
         processBuilder.start();
     }
+    
+    public int getActiveClients() {
+        return activeClients;
+    }
+
+    public void setActiveClients(int activeClients) {
+        this.activeClients = activeClients;
+    }
+
+    public int getMaxClients() {
+        return maxClients;
+    }
+
+    public void setMaxClients(int maxClients) {
+        this.maxClients = maxClients;
+    }
+
+    public String getMapName() {
+        return mapName;
+    }
+
+    public TableModel getTableModel() {
+        return tableModel;
+    }
+    
 }

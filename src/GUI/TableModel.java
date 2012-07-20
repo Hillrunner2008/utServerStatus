@@ -1,12 +1,12 @@
-package utStatusCheck;
+package GUI;
 
 /**
  *
  * @author dcnorris
  */
 import java.util.ArrayList;
-import java.util.Scanner;
 import javax.swing.table.AbstractTableModel;
+import utStatusCheck.Player;
 
 /**
  * Model for table of features.

@@ -1,4 +1,4 @@
-package utStatusCheck;
+package Server;
 
 import Globals.Constants;
 import java.io.IOException;

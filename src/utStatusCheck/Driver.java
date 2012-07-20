@@ -4,6 +4,9 @@
  */
 package utStatusCheck;
 
+import GUI.SysTray;
+import GUI.Setup;
+import GUI.UrtApp;
 import Sound.SoundPlayerService;
 import Sound.SoundPlayer;
 import Globals.Constants;
@@ -58,12 +61,12 @@ public class Driver {
         while (true) {
             Thread.sleep(5000);
             app.updateTable();
-            int maxClients = app.maxClients;
-            int activeClients = app.activeClients;
+            int maxClients = app.getMaxClients();
+            int activeClients = app.getActiveClients();
             String results = "(" + activeClients + "/" + maxClients + ")" + " currently playing";
-            String mapName = "Map: " + app.mapName;
+            String mapName = "Map: " + app.getMapName();
 
-            playerList = app.tableModel.getPlayers();
+            playerList = app.getTableModel().getPlayers();
             if (!playerList.isEmpty()) {
                 //This is a test for reseting the alert mechanism automatically as needed.
                 if (activeClients < 2) {
