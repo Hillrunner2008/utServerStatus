@@ -148,6 +148,7 @@ public class ServerQuery {
     public String getStatusString() throws Exception {
         ServerQuery q = new ServerQuery();
         q.send("getstatus");
+        Thread.sleep(100);
         String resp = q.getResponse();
         resp = q.stripPrintCommands(q.getStatus(resp));
         return resp;
