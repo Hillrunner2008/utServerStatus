@@ -57,6 +57,7 @@ public class UrtApp extends javax.swing.JDialog {
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
 
         setName("mainPanel"); // NOI18N
         setResizable(false);
@@ -106,6 +107,14 @@ public class UrtApp extends javax.swing.JDialog {
         });
         jMenuBar1.add(jMenu2);
 
+        jMenu3.setText("Info");
+        jMenu3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu3MouseClicked(evt);
+            }
+        });
+        jMenuBar1.add(jMenu3);
+
         setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -153,6 +162,7 @@ public class UrtApp extends javax.swing.JDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        //To Do: add a check to see if player is already in game and grey out button if that is the case.
         try {
             Launch(Constants.getExePath(), Constants.getIP() + ":" + Constants.getPortString());
         } catch (Exception ex) {
@@ -175,6 +185,24 @@ public class UrtApp extends javax.swing.JDialog {
         JOptionPane.showMessageDialog(null, textArea, "", JOptionPane.PLAIN_MESSAGE);
     }//GEN-LAST:event_jMenu2MouseClicked
 
+    private void jMenu3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu3MouseClicked
+        String newline = "\n";
+        String text = "Description of the program" + newline + newline;
+        JTextArea textArea = new JTextArea(text);
+        String message = "This program is designed to spare you the inconvenience of waiting around on an empty server. The program requires you enter your Urban Terror playername accurately to "
+                + "alert you appropriately.  If you are the only active player on the server, you will not receive any alerts.  \n\nIf you are joined by additional players you will begin to"
+                + " receive alerts.  These alerts will continue until you get your first kill (Your first kill is the signal you are actively engaged in the game).  After your first kill the alerts will "
+                + "stop until player scores are reset at the beggining of the next round.  \n\nAt this time the alert mechanism is reset and you will receive alerts again until your next kill.  Unfortunately "
+                + "I have not yet put in a more elegant solution "
+                + "to allow more discrimination on when to send an alert. Look forward to that feature in the next update.";
+        textArea.append(message);
+        textArea.setColumns(35);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+        textArea.setSize(textArea.getPreferredSize().width, 1);
+        JOptionPane.showMessageDialog(null, textArea, "", JOptionPane.PLAIN_MESSAGE);
+    }//GEN-LAST:event_jMenu3MouseClicked
+
     @Override
     public void setDefaultCloseOperation(int operation) {
         super.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -186,6 +214,7 @@ public class UrtApp extends javax.swing.JDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel mapNameLabel;
@@ -246,7 +275,7 @@ public class UrtApp extends javax.swing.JDialog {
 
     }
 
-    public String[] breakLines(String line) {
+    private String[] breakLines(String line) {
         String[] thisLine = new String[3];
         String scorePing = line.substring(0, line.indexOf('\"'));
         String[] tempSplit = scorePing.split(" ");
@@ -262,7 +291,7 @@ public class UrtApp extends javax.swing.JDialog {
         processBuilder.directory(new File(game.getParent()));
         processBuilder.start();
     }
-    
+
     public int getActiveClients() {
         return activeClients;
     }
@@ -286,5 +315,4 @@ public class UrtApp extends javax.swing.JDialog {
     public TableModel getTableModel() {
         return tableModel;
     }
-    
 }
