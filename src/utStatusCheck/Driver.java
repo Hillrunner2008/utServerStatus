@@ -77,12 +77,17 @@ public class Driver {
                     playSound = false;
                     //If the player is not the only activeClient in the game send alert
                     if (activeClients > 1) {
-                        playSound = true;
+                        //check if game is active (i.e. beep until your first kill)
+                        if (gameInactive()) {
+                            playSound = true;
+                        }
                     }
                 }
+
+
                 if (playSound) {
                     icon.displayMessage("One in the chamber: players now online", "Map Name: " + mapName + " " + results,
-                            TrayIcon.MessageType.INFO);  
+                            TrayIcon.MessageType.INFO);
                     SoundPlayer player = server.getAudioPlayer();
                     player.start();
                 }
@@ -99,4 +104,14 @@ public class Driver {
         return false;
     }
 
+    //if player has a 
+    private static boolean gameInactive() {
+        for (Player p : app.getTableModel().getPlayers()) {
+            if (p.getName().equals(Constants.getPlayerName()) &&
+                p.getScore() > 0) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
