@@ -24,7 +24,7 @@ public class Driver {
 
     private static SysTray sysTray = new SysTray();
     public boolean inGame = false;
-    private static boolean playSound = true;
+    private static boolean sendNotification = true;
     private static UrtApp app;
     private static ArrayList<Player> playerList = new ArrayList<Player>();
 
@@ -59,59 +59,46 @@ public class Driver {
         SystemTray.getSystemTray().remove(icon); //? 
         SystemTray.getSystemTray().add(icon);
         while (true) {
-            Thread.sleep(5000);
+            Thread.sleep(Constants.getDelay() * 1000);
             app.updateTable();
             int maxClients = app.getMaxClients();
             int activeClients = app.getActiveClients();
             String results = "(" + activeClients + "/" + maxClients + ")" + " currently playing";
             String mapName = "Map: " + app.getMapName();
 
-            playerList = app.getTableModel().getPlayers();
+            playerList = app.getPlayers();
             if (!playerList.isEmpty()) {
                 //This is a test for reseting the alert mechanism automatically as needed.
                 if (activeClients < 2) {
-                    playSound = true;
+                    sendNotification = true;
                 }
                 //If the player is the only one in the game do not send alert 
-                if (isPlayerInGame()) {
-                    playSound = false;
+                if (app.getPrimaryPlayer() != null) {
+                    sendNotification = false;
+                    app.getJoinButton().setEnabled(false);
                     //If the player is not the only activeClient in the game send alert
                     if (activeClients > 1) {
                         //check if game is active (i.e. beep until your first kill)
-                        if (gameInactive()) {
-                            playSound = true;
+                        if (app.getPrimaryPlayer().getScore() < 1) {
+                            sendNotification = true;
+                        }
+                        else{
+                        //stop sending audio alerts until re-enabled from gui                            
+                            app.setPlaySound(false);
                         }
                     }
                 }
 
 
-                if (playSound) {
+                if (sendNotification) {
                     icon.displayMessage("One in the chamber: players now online", "Map Name: " + mapName + " " + results,
                             TrayIcon.MessageType.INFO);
-                    SoundPlayer player = server.getAudioPlayer();
-                    player.start();
+                    if (app.getPlaySound()) {
+                        SoundPlayer player = server.getAudioPlayer();
+                        player.start();
+                    }
                 }
             }
         }
-    }
-
-    private static boolean isPlayerInGame() {
-        for (Player p : playerList) {
-            if (p.getName().equalsIgnoreCase(Constants.getPlayerName())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    //if player has a 
-    private static boolean gameInactive() {
-        for (Player p : app.getTableModel().getPlayers()) {
-            if (p.getName().equals(Constants.getPlayerName()) &&
-                p.getScore() > 0) {
-                return false;
-            }
-        }
-        return true;
     }
 }

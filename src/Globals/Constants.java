@@ -10,6 +10,7 @@ public final class Constants {
     static int port;
     static String name;
     static String exePath;
+    static int delay = 5;
 
     public static String getExePath() {
         return exePath;
@@ -49,5 +50,18 @@ public final class Constants {
 
     public static void setPlayerName(String name) {
         Constants.name = name;
+    }
+
+    public static int getDelay() {
+        return delay;
+    }
+
+    public static String getDelayString() {
+        String delayString = "" + delay;
+        return delayString;
+    }
+
+    public static void setDelay(int delay) {
+        Constants.delay = delay;
     }
 }

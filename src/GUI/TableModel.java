@@ -4,6 +4,7 @@ package GUI;
  *
  * @author dcnorris
  */
+import Globals.Constants;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 import utStatusCheck.Player;
@@ -19,6 +20,7 @@ public class TableModel extends AbstractTableModel {
     private static final int scoreColumn = 2;
     private ArrayList<ArrayList<String>> tableData = new ArrayList<ArrayList<String>>();
     private ArrayList<Player> players = new ArrayList<Player>();
+    private Player primaryPlayer = null;
 
     public ArrayList<Player> getPlayers() {
         return players;
@@ -32,17 +34,27 @@ public class TableModel extends AbstractTableModel {
         return (tableData == null) ? 0 : tableData.size();
     }
 
+    public Player getPrimaryPlayer() {
+        return primaryPlayer;
+    }
+    
+    
+
     public void setData(ArrayList<Player> players) {
-        this.players=players;
+        primaryPlayer = null;
+        this.players = players;
         tableData.clear();
         for (Player p : players) {
-            ArrayList<String> playerData = new ArrayList<String>();      
+            ArrayList<String> playerData = new ArrayList<String>();
             playerData.add(p.getName());
             Integer score = p.getScore();
             playerData.add(score.toString());
             Integer ping = p.getPing();
             playerData.add(ping.toString());
             tableData.add(playerData);
+            if (p.getName().equals(Constants.getPlayerName())) {
+                primaryPlayer = p;
+            }
         }
         fireTableDataChanged();
     }
@@ -68,7 +80,7 @@ public class TableModel extends AbstractTableModel {
                 return null;
         }
     }
-    
+
     @Override
     public boolean isCellEditable(int row, int col) {
         return false;

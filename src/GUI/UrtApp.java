@@ -12,10 +12,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
-import javax.swing.JFrame;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JTextArea;
+import javax.swing.*;
 import utStatusCheck.Player;
 
 public class UrtApp extends javax.swing.JDialog {
@@ -28,6 +25,7 @@ public class UrtApp extends javax.swing.JDialog {
     String statusCommand = "getstatus";
     TableModel tableModel = new TableModel();
     boolean firstTime = true;
+    boolean playSound = true;
 
     /**
      * Creates new form urtApp
@@ -53,7 +51,11 @@ public class UrtApp extends javax.swing.JDialog {
         jScrollPane1 = new javax.swing.JScrollPane();
         playerTable = new javax.swing.JTable();
         jLabel4 = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        joinButton = new javax.swing.JButton();
+        jLabel2 = new javax.swing.JLabel();
+        delayTextField = new NumTextField(Constants.getDelayString());
+        setDelayButton = new javax.swing.JButton();
+        audioCheckBox = new javax.swing.JCheckBox();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -78,11 +80,35 @@ public class UrtApp extends javax.swing.JDialog {
 
         jLabel4.setIcon(new javax.swing.ImageIcon(getClass().getResource("/images/"+ level_Image +".jpg")));
 
-        jButton1.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
-        jButton1.setText("Join Server");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        joinButton.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
+        joinButton.setText("Join Server");
+        joinButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                joinButtonActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setText("Delay (in seconds):");
+
+        delayTextField.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                delayTextFieldKeyTyped(evt);
+            }
+        });
+
+        setDelayButton.setText("Set");
+        setDelayButton.setEnabled(false);
+        setDelayButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setDelayButtonActionPerformed(evt);
+            }
+        });
+
+        audioCheckBox.setSelected(true);
+        audioCheckBox.setText("Audio Alerts");
+        audioCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                audioCheckBoxActionPerformed(evt);
             }
         });
 
@@ -123,20 +149,25 @@ public class UrtApp extends javax.swing.JDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                        .addComponent(resultsLabel)
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(mapNameLabel)
+                        .addComponent(jLabel1)
+                        .addComponent(jLabel3)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                            .addComponent(resultsLabel)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(mapNameLabel)
-                            .addComponent(jLabel1)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addContainerGap(14, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 22, Short.MAX_VALUE)
-                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 399, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(45, 45, 45))))
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(delayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(setDelayButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(audioCheckBox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(joinButton)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -151,24 +182,31 @@ public class UrtApp extends javax.swing.JDialog {
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(resultsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 8, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 48, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap())
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                    .addComponent(jLabel2)
+                    .addComponent(delayTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(setDelayButton)
+                    .addComponent(joinButton)
+                    .addComponent(audioCheckBox))
+                .addGap(10, 10, 10))
         );
+
+        layout.linkSize(javax.swing.SwingConstants.VERTICAL, new java.awt.Component[] {joinButton, setDelayButton});
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
         //To Do: add a check to see if player is already in game and grey out button if that is the case.
         try {
             Launch(Constants.getExePath(), Constants.getIP() + ":" + Constants.getPortString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_joinButtonActionPerformed
 
     private void jMenu2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu2MouseClicked
         String newline = "\n";
@@ -190,11 +228,9 @@ public class UrtApp extends javax.swing.JDialog {
         String text = "Description of the program" + newline + newline;
         JTextArea textArea = new JTextArea(text);
         String message = "This program is designed to spare you the inconvenience of waiting around on an empty server. The program requires you enter your Urban Terror playername accurately to "
-                + "alert you appropriately.  If you are the only active player on the server, you will not receive any alerts.  \n\nIf you are joined by additional players you will begin to"
-                + " receive alerts.  These alerts will continue until you get your first kill (Your first kill is the signal you are actively engaged in the game).  After your first kill the alerts will "
-                + "stop until player scores are reset at the beggining of the next round.  \n\nAt this time the alert mechanism is reset and you will receive alerts again until your next kill.  Unfortunately "
-                + "I have not yet put in a more elegant solution "
-                + "to allow more discrimination on when to send an alert. Look forward to that feature in the next update.";
+                + "alert you appropriately (note: most special characters are not supported).  If you are the only active player on the server, you will not receive any alerts (this allows you to \"bait\" the server.  \n\nIf you are joined by additional players you will begin to"
+                + " receive alerts.  These alerts will continue until you get your first kill (Your first kill is the signal you are actively engaged in the game).  After your first kill the audio alerts will "
+                + "stop until you re-enable them from the checkbox.";
         textArea.append(message);
         textArea.setColumns(35);
         textArea.setLineWrap(true);
@@ -203,13 +239,28 @@ public class UrtApp extends javax.swing.JDialog {
         JOptionPane.showMessageDialog(null, textArea, "", JOptionPane.PLAIN_MESSAGE);
     }//GEN-LAST:event_jMenu3MouseClicked
 
+    private void delayTextFieldKeyTyped(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_delayTextFieldKeyTyped
+        setDelayButton.setEnabled(true);
+    }//GEN-LAST:event_delayTextFieldKeyTyped
+
+    private void setDelayButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setDelayButtonActionPerformed
+        Constants.setDelay(Integer.parseInt(delayTextField.getText()));
+        setDelayButton.setEnabled(false);
+    }//GEN-LAST:event_setDelayButtonActionPerformed
+
+    private void audioCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_audioCheckBoxActionPerformed
+        playSound = audioCheckBox.isSelected();
+    }//GEN-LAST:event_audioCheckBoxActionPerformed
+
     @Override
     public void setDefaultCloseOperation(int operation) {
         super.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBox audioCheckBox;
+    private javax.swing.JTextField delayTextField;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
@@ -217,9 +268,11 @@ public class UrtApp extends javax.swing.JDialog {
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton joinButton;
     private javax.swing.JLabel mapNameLabel;
     private javax.swing.JTable playerTable;
     private javax.swing.JLabel resultsLabel;
+    private javax.swing.JButton setDelayButton;
     // End of variables declaration//GEN-END:variables
 
     public void updateTable() throws Exception {
@@ -241,6 +294,9 @@ public class UrtApp extends javax.swing.JDialog {
             activeClients = Integer.parseInt((String) serverInfo.get("clients"));
         } catch (NumberFormatException e) {
             activeClients = 0;
+        }
+        if (activeClients == 0) {
+            getJoinButton().setEnabled(true);
         }
 
         mapName = (String) serverInfo.get("mapname");
@@ -312,7 +368,28 @@ public class UrtApp extends javax.swing.JDialog {
         return mapName;
     }
 
-    public TableModel getTableModel() {
-        return tableModel;
+    public JButton getJoinButton() {
+        return joinButton;
+    }
+
+    public boolean getPlaySound() {
+        return playSound;
+    }
+
+    public ArrayList<Player> getPlayers() {
+        return tableModel.getPlayers();
+    }
+
+    public Player getPrimaryPlayer() {
+        Player player = tableModel.getPrimaryPlayer();
+        if (player == null) {
+            getJoinButton().setEnabled(true);
+        }
+        return player;
+    }
+
+    public void setPlaySound(boolean playsound) {
+        audioCheckBox.setSelected(playsound);
+        this.playSound = playsound;
     }
 }
