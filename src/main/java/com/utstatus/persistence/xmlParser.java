@@ -120,9 +120,9 @@ public final class xmlParser {
             }
 
         } catch (SAXParseException err) {
-            System.out.println("** Parsing error" + ", line "
+            System.err.println("** Parsing error" + ", line "
                     + err.getLineNumber() + ", uri " + err.getSystemId());
-            System.out.println(" " + err.getMessage());
+            System.err.println(err.getMessage());
 
         } catch (SAXException e) {
             Exception x = e.getException();

@@ -47,7 +47,7 @@ public class Driver {
                             try {
                                 app.updateTable();
                             } catch (Exception ex) {
-                                //do nothing
+                               System.err.println(ex.getMessage());
                             }
                             app.setVisible(true);
                         }

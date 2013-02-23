@@ -31,7 +31,6 @@ public class ServerStatusCheck implements Job {
     public void execute(JobExecutionContext context)
             throws JobExecutionException {
         try {
-            System.out.println("Hello Quartz!");
             app = UrtApp.getInstance();
             SysTray sysTray = SysTray.getInstance();
             TrayIcon icon = sysTray.getIcon();
@@ -68,13 +67,25 @@ public class ServerStatusCheck implements Job {
                     icon.displayMessage("One in the chamber: players now online", "Map Name: " + mapName + " " + results,
                             TrayIcon.MessageType.INFO);
                     if (app.getPlaySound()) {
-                        SoundPlayer player = server.getAudioPlayer();
-                        player.start();
+                        playSound();
                     }
                 }
             }
         } catch (Exception ex) {
-            //do something
+            System.err.println(ex.getMessage());
         }
+    }
+
+    public synchronized void playSound() {
+        new Thread(new Runnable() { // the wrapper thread is unnecessary, unless it blocks on the Clip finishing, see comments
+            public void run() {
+                try {
+                    SoundPlayer player = server.getAudioPlayer();
+                    player.start();
+                } catch (Exception e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }).start();
     }
 }
