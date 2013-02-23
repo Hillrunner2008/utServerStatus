@@ -29,7 +29,7 @@ public class UrtApp extends javax.swing.JDialog {
     private static UrtApp singleton;
 
     public static UrtApp getInstance() {
-        if (singleton==null){
+        if (singleton == null) {
             try {
                 singleton = new UrtApp();
             } catch (Exception ex) {

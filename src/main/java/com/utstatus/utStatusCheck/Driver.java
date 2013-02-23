@@ -4,22 +4,13 @@
  */
 package com.utstatus.utStatusCheck;
 
-import com.utstatus.globals.Constants;
 import com.utstatus.gui.Setup;
 import com.utstatus.gui.SysTray;
 import com.utstatus.gui.UrtApp;
-import com.utstatus.sound.SoundPlayer;
-import com.utstatus.sound.SoundPlayerService;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Date;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SimpleTrigger;
-import org.quartz.impl.StdSchedulerFactory;
 
 /**
  *
@@ -47,7 +38,7 @@ public class Driver {
                             try {
                                 app.updateTable();
                             } catch (Exception ex) {
-                               System.err.println(ex.getMessage());
+                                System.err.println(ex.getMessage());
                             }
                             app.setVisible(true);
                         }

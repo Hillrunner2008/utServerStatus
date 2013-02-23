@@ -10,8 +10,6 @@ import com.utstatus.sound.SoundPlayer;
 import com.utstatus.sound.SoundPlayerService;
 import java.awt.TrayIcon;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
