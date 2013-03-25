@@ -6,7 +6,7 @@
 package com.utstatus.gui;
 
 import com.utstatus.globals.Constants;
-import com.utstatus.server.ServerQuery;
+import com.utstatus.server.QueryUtility;
 import com.utstatus.utStatusCheck.Player;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,11 +20,10 @@ public class UrtApp extends javax.swing.JDialog {
     int maxClients = 0;
     int playerCount = 0;
     String results;
-    String mapImageID = "";
+    String mapImageID;
     String currentMapID = "no_image";
     String statusCommand = "getstatus";
     TableModel tableModel = new TableModel();
-    boolean firstTime = true;
     boolean playSound = true;
     private static UrtApp singleton;
 
@@ -250,10 +249,10 @@ public class UrtApp extends javax.swing.JDialog {
         maxClients = 0;
         playerCount = 0;
         currentMapID = "no_image";
-        String serverInfo = ServerQuery.getServerInfo();
-        Map serverInfoMap = ServerQuery.getInfoMap(serverInfo);
-        String rawStatus = ServerQuery.getRawStatus();
-        Map statusInfo = ServerQuery.getStatusMap(rawStatus);
+        String serverInfo = QueryUtility.getServerInfo();
+        Map serverInfoMap = QueryUtility.getInfoMap(serverInfo);
+        String rawStatus = QueryUtility.getRawStatus();
+        Map statusInfo = QueryUtility.getStatusMap(rawStatus);
         if (statusInfo == null || serverInfo == null) {
             return;
         }
@@ -275,7 +274,8 @@ public class UrtApp extends javax.swing.JDialog {
         if (classloader.getResource(currentMapID + ".jpg") != null) {
             mapImageLabel.setIcon(new ImageIcon(classloader.getResource(currentMapID + ".jpg")));
         }
-        mapImageID = "Map: " + mapImageID;
+        mapImageID = "Map: ";
+        mapImageID += mapName;
         mapNameLabel.setText(mapImageID);
         results = "(" + playerCount + "/" + maxClients + ")";
         resultsLabel.setText(results);

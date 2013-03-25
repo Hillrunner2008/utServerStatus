@@ -65,86 +65,15 @@ public class ServerQuery {
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
                 output += packet;
             } catch (IOException e) {
-                String serverResponse = output;
-                serverResponse = stripPrintCommands(serverResponse);
+                String serverResponse = output;                
                 return serverResponse;
             }
         }
     }
 
-    private static String stripPrintCommands(String input) {
-        Pattern r = Pattern.compile("....print\n");
-        Matcher m = r.matcher(input);
-        return m.replaceAll("");
-    }
 
-    private static String parseStatusResponse(String resp) {
-        Pattern r = Pattern.compile("....statusResponse\n");
-        Matcher m = r.matcher(resp);
-        resp = m.replaceAll("");
-        return resp;
-    }
 
-    private static String parseInfoResponse(String resp) {
-        Pattern r = Pattern.compile("....infoResponse\n");
-        Matcher m = r.matcher(resp);
-        resp = m.replaceAll("");
-        return resp;
-    }
 
-    public static Map getInfoMap(String info) throws Exception {
-        Map infoMap = getServerInfo(info);
-        return infoMap;
-    }
 
-    public static Map getStatusMap(String status) throws Exception {
-        Map statusMap = getServerInfo(status);
-        return statusMap;
-    }
-
-    public static String getRawStatus() throws Exception {
-        ServerQuery query = new ServerQuery();
-        query.send("getstatus");
-        String resp = query.getResponse();
-        resp = stripPrintCommands(parseStatusResponse(resp));
-        return resp;
-    }
-
-    public static String getServerInfo() throws Exception {
-        ServerQuery query = new ServerQuery();
-        query.send("getinfo");
-        String serverInfo = query.getResponse();
-        serverInfo = stripPrintCommands(parseStatusResponse(serverInfo));
-        return serverInfo;
-    }
-
-    private static Map getServerInfo(String resp) {
-        if (!resp.equals("")) {
-            resp = parseInfoResponse(resp);
-            resp = resp.substring(1);
-            String[] foo = resp.split("\\\\");
-            ArrayList<String> keys = new ArrayList();
-            ArrayList<String> vals = new ArrayList();
-            boolean direction = true;
-            for (int i = 0; i < foo.length; i++) {
-                if (direction) {
-                    keys.add(foo[i]);
-                } else {
-                    vals.add(foo[i]);
-                }
-                direction = (direction) ? false : true;
-            }
-            Map<String, String> map = new HashMap();
-            if (vals.size() > 0) {
-                for (int i = 0; i < keys.size(); i++) {
-                    String key = keys.get(i);
-                    String val = vals.get(i);
-                    map.put(key, val);
-                }
-            }
-            return map;
-        } else {
-            return null;
-        }
-    }
+    
 }
