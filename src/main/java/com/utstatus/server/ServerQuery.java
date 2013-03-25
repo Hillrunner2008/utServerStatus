@@ -42,10 +42,9 @@ public class ServerQuery {
         try {
             String out = "xxxx" + data;
             byte[] buff = out.getBytes();
-            buff[0] = oob;
-            buff[1] = oob;
-            buff[2] = oob;
-            buff[3] = oob;
+            for (int i = 0; i <= 3; i++) {
+                buff[i] = oob;
+            }
             dp = new DatagramPacket(buff, buff.length, ia, port);
             ds.send(dp);
         } catch (Exception e) {
@@ -65,15 +64,9 @@ public class ServerQuery {
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
                 output += packet;
             } catch (IOException e) {
-                String serverResponse = output;                
+                String serverResponse = output;
                 return serverResponse;
             }
         }
     }
-
-
-
-
-
-    
 }
