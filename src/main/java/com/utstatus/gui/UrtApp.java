@@ -18,10 +18,10 @@ import javax.swing.*;
 public class UrtApp extends javax.swing.JDialog {
 
     int maxClients = 0;
-    int activeClients = 0;
+    int playerCount = 0;
     String results;
-    String mapName = "";
-    String level_Image = "no_image";
+    String mapImageID = "";
+    String currentMapID = "no_image";
     String statusCommand = "getstatus";
     TableModel tableModel = new TableModel();
     boolean firstTime = true;
@@ -56,13 +56,13 @@ public class UrtApp extends javax.swing.JDialog {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        serverNameLabel = new javax.swing.JLabel();
         resultsLabel = new javax.swing.JLabel();
         mapNameLabel = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         playerTable = new javax.swing.JTable();
-        jLabel4 = new javax.swing.JLabel();
+        mapImageLabel = new javax.swing.JLabel();
         joinButton = new javax.swing.JButton();
         audioCheckBox = new javax.swing.JCheckBox();
         jMenuBar1 = new javax.swing.JMenuBar();
@@ -73,8 +73,8 @@ public class UrtApp extends javax.swing.JDialog {
         setName("mainPanel"); // NOI18N
         setResizable(false);
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
-        jLabel1.setText("Server:  ");
+        serverNameLabel.setFont(new java.awt.Font("Tahoma", 0, 24)); // NOI18N
+        serverNameLabel.setText("Server:  ");
 
         resultsLabel.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         resultsLabel.setText("0 / 16 currently playing");
@@ -87,7 +87,7 @@ public class UrtApp extends javax.swing.JDialog {
         jScrollPane1.setViewportView(playerTable);
         playerTable.setModel(tableModel);
 
-        jLabel4.setIcon(new javax.swing.ImageIcon(this.getClass().getResource("/"+level_Image +".jpg")));
+        mapImageLabel.setIcon(new javax.swing.ImageIcon(this.getClass().getResource("/"+currentMapID +".jpg")));
 
         joinButton.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
         joinButton.setText("Join Server");
@@ -178,9 +178,9 @@ public class UrtApp extends javax.swing.JDialog {
                         .addComponent(resultsLabel)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(mapNameLabel)
-                        .addComponent(jLabel1)
+                        .addComponent(serverNameLabel)
                         .addComponent(jLabel3)
-                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(mapImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(186, 186, 186)
                         .addComponent(audioCheckBox)
@@ -194,11 +194,11 @@ public class UrtApp extends javax.swing.JDialog {
                 .addContainerGap()
                 .addComponent(jLabel3)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel1)
+                .addComponent(serverNameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mapNameLabel)
                 .addGap(18, 18, 18)
-                .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(mapImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(resultsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
@@ -232,62 +232,64 @@ public class UrtApp extends javax.swing.JDialog {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JCheckBox audioCheckBox;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton joinButton;
+    private javax.swing.JLabel mapImageLabel;
     private javax.swing.JLabel mapNameLabel;
     private javax.swing.JTable playerTable;
     private javax.swing.JLabel resultsLabel;
+    private javax.swing.JLabel serverNameLabel;
     // End of variables declaration//GEN-END:variables
 
     public void updateTable() throws Exception {
         maxClients = 0;
-        activeClients = 0;
-        ServerQuery query = new ServerQuery();
-        Map serverInfo = query.getInfoMap();
-        String resp = query.getStatusString();
-        Map statusInfo = query.getStatusMap(resp);
+        playerCount = 0;
+        currentMapID = "no_image";
+        String serverInfo = ServerQuery.getServerInfo();
+        Map serverInfoMap = ServerQuery.getInfoMap(serverInfo);
+        String rawStatus = ServerQuery.getRawStatus();
+        Map statusInfo = ServerQuery.getStatusMap(rawStatus);
         if (statusInfo == null || serverInfo == null) {
             return;
         }
+        ArrayList<Player> playerList = getPlayerList(rawStatus);
         try {
-            maxClients = Integer.parseInt((String) serverInfo.get("sv_maxclients"));
+            maxClients = Integer.parseInt((String) serverInfoMap.get("sv_maxclients"));
         } catch (NumberFormatException e) {
             maxClients = 0;
         }
-        try {
-            activeClients = Integer.parseInt((String) serverInfo.get("clients"));
-        } catch (NumberFormatException e) {
-            activeClients = 0;
-        }
-        if (activeClients == 0) {
+
+        playerCount = playerList.size();
+        if (playerCount == 0) {
             getJoinButton().setEnabled(true);
         }
 
-        mapName = (String) serverInfo.get("mapname");
-        level_Image = mapName;
+        String mapName = (String) serverInfoMap.get("mapname");
+        currentMapID = mapName;
         ClassLoader classloader = getClass().getClassLoader();
-        if (classloader.getResource(level_Image + ".jpg") != null) {
-            jLabel4.setIcon(new javax.swing.ImageIcon(classloader.getResource(level_Image + ".jpg")));
+        if (classloader.getResource(currentMapID + ".jpg") != null) {
+            mapImageLabel.setIcon(new ImageIcon(classloader.getResource(currentMapID + ".jpg")));
         }
-        mapName = "Map: " + mapName;
-        mapNameLabel.setText(mapName);
-        results = "(" + activeClients + "/" + maxClients + ")";
+        mapImageID = "Map: " + mapImageID;
+        mapNameLabel.setText(mapImageID);
+        results = "(" + playerCount + "/" + maxClients + ")";
         resultsLabel.setText(results);
         String serverName = "unknown";
         if (statusInfo.get("sv_hostname") != null) {
             serverName = (String) statusInfo.get("sv_hostname");
         }
+        serverNameLabel.setText("Server: " + serverName);
+        tableModel.setData(playerList);
+    }
 
-        jLabel1.setText("Server: " + serverName);
+    private ArrayList<Player> getPlayerList(String rawStatus) {
         ArrayList<Player> players = new ArrayList<Player>();
-        String[] lines = resp.split("\\n");
+        String[] lines = rawStatus.split("\\n");
         for (int i = 1; i < lines.length; i++) {
             String[] lineSplit = breakLines(lines[i]);
             Player player = new Player();
@@ -296,10 +298,7 @@ public class UrtApp extends javax.swing.JDialog {
             player.setName(lineSplit[2]);
             players.add(player);
         }
-        if (players.size() == activeClients) {
-            tableModel.setData(players);
-        }
-
+        return players;
     }
 
     private String[] breakLines(String line) {
@@ -320,11 +319,11 @@ public class UrtApp extends javax.swing.JDialog {
     }
 
     public int getActiveClients() {
-        return activeClients;
+        return playerCount;
     }
 
     public void setActiveClients(int activeClients) {
-        this.activeClients = activeClients;
+        this.playerCount = activeClients;
     }
 
     public int getMaxClients() {
@@ -336,7 +335,7 @@ public class UrtApp extends javax.swing.JDialog {
     }
 
     public String getMapName() {
-        return mapName;
+        return mapImageID;
     }
 
     public JButton getJoinButton() {

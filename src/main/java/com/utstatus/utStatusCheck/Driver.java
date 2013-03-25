@@ -21,7 +21,6 @@ public class Driver {
     private static SysTray sysTray;
     private static UrtApp app;
 
-    @SuppressWarnings("SleepWhileInLoop")
     public static void main(String[] args) throws Exception {
 
         Setup setup = new Setup();
@@ -31,8 +30,10 @@ public class Driver {
 
         TrayIcon icon = sysTray.getIcon();
         icon.addActionListener(new ActionListener() {
+
             public void actionPerformed(ActionEvent e) {
                 java.awt.EventQueue.invokeLater(new Runnable() {
+
                     public void run() {
                         synchronized (app) {
                             try {
@@ -46,10 +47,7 @@ public class Driver {
                 });
             }
         });
-        SystemTray.getSystemTray().remove(icon); //? bug fix
+        SystemTray.getSystemTray().remove(icon); //fixes windows bug (at least mostly
         SystemTray.getSystemTray().add(icon);
-
-
-
     }
 }

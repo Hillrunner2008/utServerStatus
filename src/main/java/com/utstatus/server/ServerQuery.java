@@ -8,6 +8,8 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,16 +25,14 @@ import java.util.regex.Pattern;
  */
 public class ServerQuery {
 
-    private byte oob;
+    private final byte oob = (byte) 0xff;
     private int port;
     private DatagramSocket ds;
     private DatagramPacket dp;
     private InetAddress ia;
-    private boolean rawOutput;
     private String output;
 
     public ServerQuery() throws Exception {
-        this.oob = (byte) 0xff;
         this.port = Constants.getPort();
         this.ds = new DatagramSocket();
         this.ia = InetAddress.getByName(Constants.getIP());
@@ -42,12 +42,12 @@ public class ServerQuery {
         try {
             String out = "xxxx" + data;
             byte[] buff = out.getBytes();
-            buff[0] = this.oob;
-            buff[1] = this.oob;
-            buff[2] = this.oob;
-            buff[3] = this.oob;
-            this.dp = new DatagramPacket(buff, buff.length, this.ia, this.port);
-            this.ds.send(this.dp);
+            buff[0] = oob;
+            buff[1] = oob;
+            buff[2] = oob;
+            buff[3] = oob;
+            dp = new DatagramPacket(buff, buff.length, ia, port);
+            ds.send(dp);
         } catch (Exception e) {
             System.out.println("Send method in BowserQuery Failed with: " + e.getMessage());
         }
@@ -56,68 +56,71 @@ public class ServerQuery {
     public String getResponse() {
         DatagramPacket dpacket;
         byte[] buffer = new byte[2048];
-        this.output = "";
+        output = "";
         while (true) {
             try {
                 dpacket = new DatagramPacket(buffer, buffer.length);
-                // Decrease value speeds things up, increase slows things down.
-                this.ds.setSoTimeout(100);
-                this.ds.receive(dpacket);
+                ds.setSoTimeout(100);
+                ds.receive(dpacket);
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
-                this.output += packet;
+                output += packet;
             } catch (IOException e) {
-                if (this.rawOutput) {
-                    return this.output;
-                } else {
-                    //todo: replace blank player name with "UnknownPlayer"
-                    String purdy = this.output;
-                    purdy = stripPrintCommands(purdy);
-                    //purdy = stripColors(purdy);
-                    return purdy;
-                }
+                String serverResponse = output;
+                serverResponse = stripPrintCommands(serverResponse);
+                return serverResponse;
             }
-        } // end while
+        }
     }
 
-    public String stripPrintCommands(String input) {
+    private static String stripPrintCommands(String input) {
         Pattern r = Pattern.compile("....print\n");
         Matcher m = r.matcher(input);
         return m.replaceAll("");
     }
 
-    public String getStatus(String resp) {
+    private static String parseStatusResponse(String resp) {
         Pattern r = Pattern.compile("....statusResponse\n");
         Matcher m = r.matcher(resp);
         resp = m.replaceAll("");
         return resp;
     }
 
-    public String getScore(String resp) {
-        Pattern r = Pattern.compile("....statusResponse\n");
+    private static String parseInfoResponse(String resp) {
+        Pattern r = Pattern.compile("....infoResponse\n");
         Matcher m = r.matcher(resp);
         resp = m.replaceAll("");
         return resp;
     }
 
-    public Map getInfoMap() throws Exception {
-        ServerQuery q = new ServerQuery();
-        q.send("getinfo");
-        String resp = q.getResponse();
-        resp = q.stripPrintCommands(q.getStatus(resp));
-        Map infoMap = getServerInfo(resp);
+    public static Map getInfoMap(String info) throws Exception {
+        Map infoMap = getServerInfo(info);
         return infoMap;
     }
 
-    public Map getStatusMap(String resp) throws Exception {
-        Map statusMap = getServerInfo(resp);
+    public static Map getStatusMap(String status) throws Exception {
+        Map statusMap = getServerInfo(status);
         return statusMap;
     }
 
-    public Map getServerInfo(String resp) {
+    public static String getRawStatus() throws Exception {
+        ServerQuery query = new ServerQuery();
+        query.send("getstatus");
+        String resp = query.getResponse();
+        resp = stripPrintCommands(parseStatusResponse(resp));
+        return resp;
+    }
+
+    public static String getServerInfo() throws Exception {
+        ServerQuery query = new ServerQuery();
+        query.send("getinfo");
+        String serverInfo = query.getResponse();
+        serverInfo = stripPrintCommands(parseStatusResponse(serverInfo));
+        return serverInfo;
+    }
+
+    private static Map getServerInfo(String resp) {
         if (!resp.equals("")) {
-            Pattern r = Pattern.compile("....infoResponse\n");
-            Matcher m = r.matcher(resp);
-            resp = m.replaceAll("");
+            resp = parseInfoResponse(resp);
             resp = resp.substring(1);
             String[] foo = resp.split("\\\\");
             ArrayList<String> keys = new ArrayList();
@@ -143,14 +146,5 @@ public class ServerQuery {
         } else {
             return null;
         }
-    }
-
-    public String getStatusString() throws Exception {
-        ServerQuery q = new ServerQuery();
-        q.send("getstatus");
-        Thread.sleep(100);
-        String resp = q.getResponse();
-        resp = q.stripPrintCommands(q.getStatus(resp));
-        return resp;
     }
 }

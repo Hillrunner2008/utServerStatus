@@ -6,11 +6,12 @@ package com.utstatus.globals;
  */
 public final class Constants {
 
-    static String ip;
-    static int port;
-    static String name;
-    static String exePath;
-    static int delay = 8;
+    private static String ip;
+    private static int port;
+    private static String name;
+    private static String exePath;
+    //todo: add back dynamic delay functionality 
+    private static int delay = 8;
 
     public static String getExePath() {
         return exePath;
