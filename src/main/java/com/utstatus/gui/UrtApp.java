@@ -8,6 +8,8 @@ package com.utstatus.gui;
 import com.utstatus.globals.Constants;
 import com.utstatus.server.QueryUtility;
 import com.utstatus.utStatusCheck.Player;
+import java.awt.SystemTray;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -110,6 +112,7 @@ public class UrtApp extends javax.swing.JDialog {
 
         exit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
+                SysTray.removeSysTrayIcon();
                 System.exit(0);
             }
         });
@@ -362,4 +365,5 @@ public class UrtApp extends javax.swing.JDialog {
         audioCheckBox.setSelected(playsound);
         this.playSound = playsound;
     }
+
 }

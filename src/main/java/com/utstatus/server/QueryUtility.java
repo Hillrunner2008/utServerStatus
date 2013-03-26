@@ -44,15 +44,15 @@ public class QueryUtility {
         if (!resp.equals("")) {
             resp = QueryParser.parseInfoResponse(resp);
             resp = resp.substring(1);
-            String[] foo = resp.split("\\\\");
+            String[] attributes = resp.split("\\\\");
             ArrayList<String> keys = new ArrayList();
             ArrayList<String> vals = new ArrayList();
             boolean direction = true;
-            for (int i = 0; i < foo.length; i++) {
+            for (int i = 0; i < attributes.length; i++) {
                 if (direction) {
-                    keys.add(foo[i]);
+                    keys.add(attributes[i]);
                 } else {
-                    vals.add(foo[i]);
+                    vals.add(attributes[i]);
                 }
                 direction = (direction) ? false : true;
             }

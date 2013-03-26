@@ -5,13 +5,6 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * A class to query Q3 based games, like Urban Terror.
@@ -30,7 +23,7 @@ public class ServerQuery {
     private DatagramSocket ds;
     private DatagramPacket dp;
     private InetAddress ia;
-    private String output;
+    private String response;
 
     public ServerQuery() throws Exception {
         this.port = Constants.getPort();
@@ -48,24 +41,23 @@ public class ServerQuery {
             dp = new DatagramPacket(buff, buff.length, ia, port);
             ds.send(dp);
         } catch (Exception e) {
-            System.out.println("Send method in BowserQuery Failed with: " + e.getMessage());
+            //todo: add log message here
         }
     }
 
     public String getResponse() {
         DatagramPacket dpacket;
         byte[] buffer = new byte[2048];
-        output = "";
+        response = "";
         while (true) {
             try {
                 dpacket = new DatagramPacket(buffer, buffer.length);
-                ds.setSoTimeout(100);
+                ds.setSoTimeout(90);
                 ds.receive(dpacket);
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
-                output += packet;
+                response += packet;
             } catch (IOException e) {
-                String serverResponse = output;
-                return serverResponse;
+                return response;
             }
         }
     }

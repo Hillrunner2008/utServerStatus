@@ -54,8 +54,9 @@ public class SysTray {
         MenuItem exit = new MenuItem("Exit");
 
         exit.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
 
+            public void actionPerformed(ActionEvent e) {
+                removeSysTrayIcon();
                 System.exit(0);
 
             }
@@ -65,5 +66,10 @@ public class SysTray {
 
         return menu;
 
+    }
+
+    public static void removeSysTrayIcon() {
+        TrayIcon icon = SysTray.getInstance().getIcon();
+        SystemTray.getSystemTray().remove(icon);
     }
 }
