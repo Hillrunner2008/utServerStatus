@@ -18,7 +18,7 @@ public final class Constants {
     }
 
     public static void setExePath(String path) {
-        Constants.exePath = path;
+        exePath = path;
     }
 
     public static String getIP() {

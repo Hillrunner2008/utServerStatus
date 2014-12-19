@@ -5,7 +5,7 @@ package com.utstatus.gui;
  * @author dcnorris
  */
 import com.utstatus.globals.Constants;
-import com.utstatus.utStatusCheck.Player;
+import com.utstatus.main.Player;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 

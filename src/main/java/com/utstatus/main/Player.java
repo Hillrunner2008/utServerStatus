@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.utstatus.utStatusCheck;
+package com.utstatus.main;
 
 /**
  *
@@ -13,14 +13,6 @@ public class Player {
     private int ping;
     private int score;
     private String name;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     public int getPing() {
         return ping;
@@ -37,4 +29,14 @@ public class Player {
     public void setScore(int score) {
         this.score = score;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    
 }

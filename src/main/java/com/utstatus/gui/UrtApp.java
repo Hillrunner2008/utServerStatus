@@ -7,7 +7,7 @@ package com.utstatus.gui;
 
 import com.utstatus.globals.Constants;
 import com.utstatus.server.QueryUtility;
-import com.utstatus.utStatusCheck.Player;
+import com.utstatus.main.Player;
 import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;

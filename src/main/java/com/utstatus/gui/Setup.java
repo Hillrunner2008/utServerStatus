@@ -13,17 +13,18 @@ package com.utstatus.gui;
 import com.utstatus.globals.Constants;
 import com.utstatus.persistence.xmlParser;
 import com.utstatus.persistence.xmlWriter;
-import com.utstatus.utStatusCheck.ServerStatusCheck;
+import com.utstatus.main.ServerStatusCheck;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import javax.swing.JFileChooser;
-import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
+import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
+import org.quartz.impl.triggers.SimpleTriggerImpl;
 
 /**
  *
@@ -33,8 +34,8 @@ public class Setup extends javax.swing.JFrame {
 
     static HashMap<String, HashMap<String, String>> profileData = new HashMap<String, HashMap<String, String>>();
     private JFileChooser exeChooser = new JFileChooser();
-    private SimpleTrigger trigger = new SimpleTrigger();
-    private JobDetail job = new JobDetail();
+    private SimpleTriggerImpl trigger = new SimpleTriggerImpl();
+    private JobDetailImpl job = new JobDetailImpl();
 
     /**
      * Creates new form Setup

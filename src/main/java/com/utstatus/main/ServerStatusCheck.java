@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.utstatus.utStatusCheck;
+package com.utstatus.main;
 
 import com.utstatus.gui.SysTray;
 import com.utstatus.gui.UrtApp;
