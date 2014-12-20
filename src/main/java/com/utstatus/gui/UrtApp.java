@@ -38,6 +38,7 @@ public class UrtApp extends javax.swing.JDialog {
     private Configuration config;
     private SystemTrayManager sysTray;
     private QueryUtility queryUtil;
+    private ServerStatusCheck serverStatusCheck;
 
     /**
      * Creates new form urtApp
@@ -53,12 +54,12 @@ public class UrtApp extends javax.swing.JDialog {
         setup.setVisible(true);
         queryUtil = new QueryUtility(config);
         sysTray = new SystemTrayManager(this);
-        new ServerStatusCheck();
+        serverStatusCheck = new ServerStatusCheck();
     }
 
     public void initScheduler() {
         try {
-
+            serverStatusCheck.timer.start();
         } catch (Exception ex) {
             logger.error("Error during initialization of scheduler", ex);
         }

@@ -1,25 +1,15 @@
 package com.utstatus.gui;
 
+import com.google.common.base.Charsets;
 import static com.google.common.base.Strings.isNullOrEmpty;
+import com.google.common.io.Files;
 import com.google.common.primitives.Ints;
+import com.utstatus.Driver;
 import com.utstatus.model.Configuration;
-import com.utstatus.model.Player;
-import com.utstatus.sound.SoundPlayer;
-import com.utstatus.sound.SoundPlayerService;
-import java.awt.TrayIcon;
+import com.utstatus.persistence.ConfigurationParser;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Date;
+import java.io.IOException;
 import javax.swing.JFileChooser;
-import org.quartz.Job;
-import org.quartz.JobExecutionContext;
-import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.SimpleTrigger;
-import org.quartz.impl.JobDetailImpl;
-import org.quartz.impl.StdSchedulerFactory;
-import org.quartz.impl.triggers.SimpleTriggerImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +170,12 @@ public class Setup extends javax.swing.JFrame {
             config.setExecutablePath(exeTextField.getText());
             setVisible(false);
         }
+        try {
+            Files.write(ConfigurationParser.toJson(config), new File(System.getProperty("user.home"), Driver.CONFIGURATION_FILE_NAME), Charsets.UTF_8);
+        } catch (IOException ex) {
+            logger.error("Error persisting configuration", ex);
+        }
+
         app.initScheduler();
         app.setVisible(true);
     }//GEN-LAST:event_startButtonActionPerformed
