@@ -15,9 +15,17 @@ public class TableModel extends AbstractTableModel {
     private static final int playerNameColumn = 0;
     private static final int pingColumn = 1;
     private static final int scoreColumn = 2;
-    private ArrayList<ArrayList<String>> tableData = new ArrayList<ArrayList<String>>();
-    private ArrayList<Player> players = new ArrayList<Player>();
-    private Player primaryPlayer = null;
+    private ArrayList<ArrayList<String>> tableData;
+    private ArrayList<Player> players;
+    private Player primaryPlayer;
+    private final Configuration config;
+
+    public TableModel(Configuration config) {
+        this.config = config;
+        tableData = new ArrayList<>();
+        players = new ArrayList<>();
+        primaryPlayer = null;
+    }
 
     public ArrayList<Player> getPlayers() {
         return players;
@@ -40,14 +48,14 @@ public class TableModel extends AbstractTableModel {
         this.players = players;
         tableData.clear();
         for (Player p : players) {
-            ArrayList<String> playerData = new ArrayList<String>();
+            ArrayList<String> playerData = new ArrayList<>();
             playerData.add(p.getName());
             Integer score = p.getScore();
             playerData.add(score.toString());
             Integer ping = p.getPing();
             playerData.add(ping.toString());
             tableData.add(playerData);
-            if (p.getName().equals(Configuration.getPlayerName())) {
+            if (p.getName().equals(config.getPlayerName())) {
                 primaryPlayer = p;
             }
         }
@@ -61,7 +69,7 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        ArrayList<String> temp = new ArrayList<String>();
+        ArrayList<String> temp = new ArrayList<>();
         temp = tableData.get(row);
         switch (col) {
             case playerNameColumn:

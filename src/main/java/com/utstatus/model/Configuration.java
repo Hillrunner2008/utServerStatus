@@ -6,18 +6,22 @@ package com.utstatus.model;
  */
 public class Configuration {
 
-    private String serverIpAddress;
-    private int port;
-    private String playerName;
-    private String executablePath;
-    private int pollDelay = 8;
+    public static int POLLING_DELAY = 8;
 
-    public String getServerIpAddress() {
-        return serverIpAddress;
+    private String ip = "209.190.50.170";
+    private int port = 27960;
+    private String playerName = "unnamedPlayer";
+    private String executablePath = "";
+
+    public Configuration() {
     }
 
-    public void setServerIpAddress(String serverIpAddress) {
-        this.serverIpAddress = serverIpAddress;
+    public String getIp() {
+        return ip;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
     }
 
     public int getPort() {
@@ -45,15 +49,15 @@ public class Configuration {
     }
 
     public int getPollDelay() {
-        return pollDelay;
+        return POLLING_DELAY;
     }
 
     public void setPollDelay(int pollDelay) {
-        this.pollDelay = pollDelay;
+        this.POLLING_DELAY = pollDelay;
     }
 
     public String getServerAddress() {
-        return serverIpAddress + ":" + getPortString();
+        return ip + ":" + getPortString();
     }
 
     public String getPortString() {
@@ -61,11 +65,11 @@ public class Configuration {
     }
 
     public String getDelayString() {
-        String delayString = "" + pollDelay;
+        String delayString = "" + POLLING_DELAY;
         return delayString;
     }
 
     public void setDelay(int delay) {
-        this.pollDelay = delay;
+        this.POLLING_DELAY = delay;
     }
 }

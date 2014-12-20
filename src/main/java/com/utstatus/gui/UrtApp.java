@@ -8,31 +8,60 @@ package com.utstatus.gui;
 import com.utstatus.model.Configuration;
 import com.utstatus.server.QueryUtility;
 import com.utstatus.model.Player;
+import com.utstatus.sound.SoundPlayer;
+import com.utstatus.sound.SoundPlayerService;
+import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Map;
 import javax.swing.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UrtApp extends javax.swing.JDialog {
 
-    private SysTray sysTray;
+    private static final Logger logger = LoggerFactory.getLogger(UrtApp.class);
+
+    public static final String APPLICATION_NAME = "UT Status App";
+    private String currentMapID = "no_image";
+    private String statusCommand = "getstatus";
+
     private int maxClients = 0;
     private int playerCount = 0;
     private String results;
     private String mapImageID;
-    private String currentMapID = "no_image";
-    private String statusCommand = "getstatus";
-    private TableModel tableModel = new TableModel();
+
+    private TableModel tableModel;
     private boolean playSound = true;
+    private Configuration config;
+    private SystemTrayManager sysTray;
+    private QueryUtility queryUtil;
 
     /**
      * Creates new form urtApp
+     *
+     * @param config
      */
     @SuppressWarnings("SleepWhileInLoop")
-    public UrtApp() throws Exception {
+    public UrtApp(Configuration config) throws Exception {
+        this.config = config;
+        tableModel = new TableModel(config);
         initComponents();
+        Setup setup = new Setup(config, this);
+        setup.setVisible(true);
+        queryUtil = new QueryUtility(config);
+        sysTray = new SystemTrayManager(this);
+        new ServerStatusCheck();
+    }
+
+    public void initScheduler() {
+        try {
+
+        } catch (Exception ex) {
+            logger.error("Error during initialization of scheduler", ex);
+        }
     }
 
     /**
@@ -99,7 +128,7 @@ public class UrtApp extends javax.swing.JDialog {
 
         exit.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                SysTray.removeSysTrayIcon();
+                sysTray.removeSysTrayIcon();
                 System.exit(0);
             }
         });
@@ -205,9 +234,10 @@ public class UrtApp extends javax.swing.JDialog {
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
         //To Do: add a check to see if player is already in game and grey out button if that is the case.
         try {
-            Launch(Configuration.getExePath(), Configuration.getIP() + ":" + Configuration.getPortString());
+
+            Launch(config.getExecutablePath(), config.getIp() + ":" + config.getPortString());
         } catch (Exception ex) {
-            ex.printStackTrace();
+            logger.error("Could not launch urban terror with the provided path {}", config.getExecutablePath(), config.getIp() + ":" + config.getPortString(), ex);
         }
     }//GEN-LAST:event_joinButtonActionPerformed
 
@@ -239,10 +269,10 @@ public class UrtApp extends javax.swing.JDialog {
         maxClients = 0;
         playerCount = 0;
         currentMapID = "no_image";
-        String serverInfo = QueryUtility.getServerInfo();
-        Map serverInfoMap = QueryUtility.getInfoMap(serverInfo);
-        String rawStatus = QueryUtility.getRawStatus();
-        Map statusInfo = QueryUtility.getStatusMap(rawStatus);
+        String serverInfo = queryUtil.getServerInfo();
+        Map serverInfoMap = queryUtil.getInfoMap(serverInfo);
+        String rawStatus = queryUtil.getRawStatus();
+        Map statusInfo = queryUtil.getStatusMap(rawStatus);
         if (statusInfo == null || serverInfo == null) {
             return;
         }
@@ -278,7 +308,7 @@ public class UrtApp extends javax.swing.JDialog {
     }
 
     private ArrayList<Player> getPlayerList(String rawStatus) {
-        ArrayList<Player> players = new ArrayList<Player>();
+        ArrayList<Player> players = new ArrayList<>();
         String[] lines = rawStatus.split("\\n");
         for (int i = 1; i < lines.length; i++) {
             String[] lineSplit = breakLines(lines[i]);
@@ -351,6 +381,79 @@ public class UrtApp extends javax.swing.JDialog {
     public void setPlaySound(boolean playsound) {
         audioCheckBox.setSelected(playsound);
         this.playSound = playsound;
+    }
+
+    private class ServerStatusCheck {
+
+        private SoundPlayerService server = new SoundPlayerService();
+        public boolean inGame = false;
+        private boolean sendNotification = true;
+        private ArrayList<Player> playerList = new ArrayList<>();
+
+        private Timer timer = new Timer(config.getPollDelay() * 1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                execute();
+            }
+        });
+
+        private void execute() {
+            try {
+                updateTable();
+                int maxClients = getMaxClients();
+                int activeClients = getActiveClients();
+                String results = "(" + activeClients + "/" + maxClients + ")" + " currently playing";
+                String mapName = "Map: " + getMapName();
+
+                playerList = getPlayers();
+                if (!playerList.isEmpty()) {
+                    //This is a test for reseting the alert mechanism automatically as needed.
+                    if (activeClients < 2) {
+                        sendNotification = true;
+                    }
+                    //If the player is the only one in the game do not send alert 
+                    if (getPrimaryPlayer() != null) {
+                        sendNotification = false;
+                        getJoinButton().setEnabled(false);
+                        //If the player is not the only activeClient in the game send alert
+                        if (activeClients > 1) {
+                            //check if game is active (i.e. beep until your first kill)
+                            if (getPrimaryPlayer().getScore() < 1) {
+                                sendNotification = true;
+                            } else {
+                                //stop sending audio alerts until re-enabled from gui                            
+                                setPlaySound(false);
+                            }
+                        }
+                    }
+
+                    if (sendNotification) {
+                        sysTray.getIcon().displayMessage("One in the chamber: players now online", "Map Name: " + mapName + " " + results,
+                                TrayIcon.MessageType.INFO);
+                        if (getPlaySound()) {
+                            playSound();
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                System.err.println(ex.getMessage());
+            }
+        }
+
+        private void playSound() {
+            SwingUtilities.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        SoundPlayer player = server.getAudioPlayer();
+                        player.start();
+                    } catch (Exception ex) {
+                        logger.error(ex.getMessage(), ex);
+                    }
+                }
+            });
+
+        }
     }
 
 }

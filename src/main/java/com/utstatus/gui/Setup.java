@@ -1,20 +1,27 @@
 package com.utstatus.gui;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import com.google.common.primitives.Ints;
 import com.utstatus.model.Configuration;
-import com.utstatus.persistence.xmlParser;
-import com.utstatus.persistence.xmlWriter;
-import com.utstatus.ServerStatusCheck;
+import com.utstatus.model.Player;
+import com.utstatus.sound.SoundPlayer;
+import com.utstatus.sound.SoundPlayerService;
+import java.awt.TrayIcon;
 import java.io.File;
-import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import javax.swing.JFileChooser;
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.impl.JobDetailImpl;
 import org.quartz.impl.StdSchedulerFactory;
 import org.quartz.impl.triggers.SimpleTriggerImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -22,26 +29,23 @@ import org.quartz.impl.triggers.SimpleTriggerImpl;
  */
 public class Setup extends javax.swing.JFrame {
 
-    static HashMap<String, HashMap<String, String>> profileData = new HashMap<String, HashMap<String, String>>();
-    private JFileChooser exeChooser = new JFileChooser();
-    private SimpleTriggerImpl trigger = new SimpleTriggerImpl();
-    private JobDetailImpl job = new JobDetailImpl();
+    private static final Logger logger = LoggerFactory.getLogger(Setup.class);
 
-    /**
-     * Creates new form Setup
-     */
-    public Setup() {
-        xmlParser parser = new xmlParser();
-        profileData = parser.getFileAttributes();
+    private JFileChooser exeChooser;
+    private Configuration config;
+    private UrtApp app;
 
-        job.setName("CheckStatus");
-        job.setJobClass(ServerStatusCheck.class);
-        trigger.setName("trigger");
-        trigger.setStartTime(new Date(System.currentTimeMillis() + 1000));
-        trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        trigger.setRepeatInterval(Configuration.getDelay() * 1000);
-
+    public Setup(Configuration config, UrtApp app) {
+        this.config = config;
+        this.app = app;
+        initFileChooser();
         initComponents();
+    }
+
+    private void initFileChooser() {
+        exeChooser = new JFileChooser();
+        exeChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        exeChooser.setDialogTitle("Open Index Folder ...");
     }
 
     /**
@@ -53,26 +57,24 @@ public class Setup extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
+        ipAddressTextField = new javax.swing.JTextField();
+        portTextField = new javax.swing.JTextField();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
         startButton = new javax.swing.JButton();
         jLabel4 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        playerNameTextField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         exeTextField = new javax.swing.JTextField();
-        jButton2 = new javax.swing.JButton();
-        jLabel6 = new javax.swing.JLabel();
+        exeBrowseBtn = new javax.swing.JButton();
+        errorNotification = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
         setResizable(false);
 
-        if (profileData.get("1").containsKey("port")){
-            jTextField2.setText(profileData.get("1").get("port"));
-        }
+        portTextField.setText(config.getPortString());
 
         jLabel1.setText("Server IP Address:");
 
@@ -91,15 +93,15 @@ public class Setup extends javax.swing.JFrame {
 
         jLabel5.setText("Path to Executable:");
 
-        jButton2.setText("Browse...");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        exeBrowseBtn.setText("Browse...");
+        exeBrowseBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                exeBrowseBtnActionPerformed(evt);
             }
         });
 
-        jLabel6.setForeground(new java.awt.Color(255, 0, 0));
-        jLabel6.setText("warning");
+        errorNotification.setForeground(new java.awt.Color(255, 0, 0));
+        errorNotification.setText("warning");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -116,11 +118,11 @@ public class Setup extends javax.swing.JFrame {
                             .addComponent(jLabel5))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jTextField1, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
-                            .addComponent(jTextField2, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(ipAddressTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(portTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
+                            .addComponent(playerNameTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)
                             .addComponent(exeTextField, javax.swing.GroupLayout.DEFAULT_SIZE, 207, Short.MAX_VALUE)))
-                    .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(exeBrowseBtn, javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(layout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(startButton, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE))
@@ -129,7 +131,7 @@ public class Setup extends javax.swing.JFrame {
                         .addComponent(jLabel3))
                     .addGroup(layout.createSequentialGroup()
                         .addGap(149, 149, 149)
-                        .addComponent(jLabel6)))
+                        .addComponent(errorNotification)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -139,82 +141,50 @@ public class Setup extends javax.swing.JFrame {
                 .addComponent(jLabel3)
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(ipAddressTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(portTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
                     .addComponent(jLabel4)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(playerNameTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
                     .addComponent(exeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jButton2)
+                .addComponent(exeBrowseBtn)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
-                .addComponent(jLabel6)
+                .addComponent(errorNotification)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(5, 5, 5))
         );
 
-        if (profileData.get("1").containsKey("ip")){
-            jTextField1.setText(profileData.get("1").get("ip"));
-        }
-        if (profileData.get("1").containsKey("name")){
-            jTextField3.setText(profileData.get("1").get("name"));
-        }
-        if (profileData.get("1").containsKey("exePath")){
-            exeTextField.setText(profileData.get("1").get("exePath"));
-        }
-        jLabel6.setText("");
+        ipAddressTextField.setText(config.getIp());
+        playerNameTextField.setText(config.getPlayerName());
+        exeTextField.setText(config.getExecutablePath());
+        errorNotification.setText("");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
-        if (!"".equals(jTextField1.getText())
-                && !"".equals(jTextField2.getText())
-                && !"".equals(jTextField3.getText())
-                && !"".equals(exeTextField.getText())
-                && jTextField1.getText() != null
-                && jTextField2.getText() != null
-                && jTextField3.getText() != null
-                && exeTextField.getText() != null) {
-            Configuration.setIP(jTextField1.getText());
-            Configuration.setPort(Integer.parseInt(jTextField2.getText()));
-            Configuration.setPlayerName(jTextField3.getText());
-            Configuration.setExePath(exeTextField.getText());
-            xmlWriter writer = new xmlWriter();
-            try {
-                writer.savePlayerData(jTextField1.getText(), jTextField3.getText(), Integer.parseInt(jTextField2.getText()), exeTextField.getText());
-            } catch (IOException ex) {
-                ex.printStackTrace();
-                System.out.println("problem writing xml");
-            }
-            this.setVisible(false);
-        } else {
-            jLabel6.setText("Please Enter all Fields.");
+        if (isValidInput()) {
+            config.setIp(ipAddressTextField.getText());
+            config.setPort(Integer.parseInt(portTextField.getText()));
+            config.setPlayerName(playerNameTextField.getText());
+            config.setExecutablePath(exeTextField.getText());
+            setVisible(false);
         }
-
-        Scheduler scheduler;
-        try {
-            scheduler = new StdSchedulerFactory().getScheduler();
-            scheduler.start();
-            scheduler.scheduleJob(job, trigger);
-        } catch (SchedulerException ex) {
-            System.out.println("Error during initialization of scheduler");
-        }
+        app.initScheduler();
+        app.setVisible(true);
     }//GEN-LAST:event_startButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        exeChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-        exeChooser.setDialogTitle("Open Index Folder ...");
+    private void exeBrowseBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exeBrowseBtnActionPerformed
         exeChooser.showDialog(this, "Open");
         File f = exeChooser.getSelectedFile();
         if (f == null) {
@@ -222,19 +192,38 @@ public class Setup extends javax.swing.JFrame {
             return;
         }
         exeTextField.setText(f.getAbsolutePath());
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_exeBrowseBtnActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel errorNotification;
+    private javax.swing.JButton exeBrowseBtn;
     private javax.swing.JTextField exeTextField;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JTextField ipAddressTextField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
+    private javax.swing.JTextField playerNameTextField;
+    private javax.swing.JTextField portTextField;
     private javax.swing.JButton startButton;
     // End of variables declaration//GEN-END:variables
+
+    private boolean isValidInput() {
+        if (isNullOrEmpty(ipAddressTextField.getText())
+                && isNullOrEmpty(portTextField.getText())
+                && isNullOrEmpty(playerNameTextField.getText())
+                && isNullOrEmpty(exeTextField.getText())) {
+            try {
+                Ints.tryParse(portTextField.getText());
+            } catch (Exception ex) {
+                errorNotification.setText("Enter a valid Port");
+                return false;
+            }
+            errorNotification.setText("Please Enter all Fields.");
+            return false;
+        }
+        return true;
+    }
+
 }

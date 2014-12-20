@@ -25,10 +25,10 @@ public class ServerQuery {
     private InetAddress ia;
     private String response;
 
-    public ServerQuery() throws Exception {
-        this.port = Configuration.getPort();
+    public ServerQuery(Configuration config) throws Exception {
+        this.port = config.getPort();
         this.ds = new DatagramSocket();
-        this.ia = InetAddress.getByName(Configuration.getIP());
+        this.ia = InetAddress.getByName(config.getIp());
     }
 
     public void send(String data) {
@@ -41,7 +41,7 @@ public class ServerQuery {
             dp = new DatagramPacket(buff, buff.length, ia, port);
             ds.send(dp);
         } catch (Exception e) {
-            //todo: add log message here
+            
         }
     }
 

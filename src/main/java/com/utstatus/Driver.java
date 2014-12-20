@@ -1,12 +1,12 @@
 package com.utstatus;
 
-import com.utstatus.gui.Setup;
-import com.utstatus.gui.SysTray;
 import com.utstatus.gui.UrtApp;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import com.utstatus.model.Configuration;
+import com.utstatus.persistence.ConfigurationParser;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,36 +17,19 @@ import org.slf4j.LoggerFactory;
 public class Driver {
 
     private static final Logger logger = LoggerFactory.getLogger(Driver.class);
-    
-    private static UrtApp app;
+    private static final String CONFIGURATION_FILE_NAME = "utstatus.json";
 
     public static void main(String[] args) throws Exception {
+
+        Configuration configuration;
+        //Check for persisted configuration
+        try (Reader reader = new FileReader(System.getProperty("user.dir") + "/"+CONFIGURATION_FILE_NAME)) {
+            configuration = ConfigurationParser.fromJson(reader);
+        } catch (IOException ex) {
+            //don't throw exception just start with default configuration
+            configuration = new Configuration();
+        }
         logger.info("Starting UT Status Check");
-        Setup setup = new Setup();
-        setup.setVisible(true);
-
-        app = UrtApp.getInstance();
-
-        TrayIcon icon = sysTray.getIcon();
-        icon.addActionListener(new ActionListener() {
-
-            public void actionPerformed(ActionEvent e) {
-                java.awt.EventQueue.invokeLater(new Runnable() {
-
-                    public void run() {
-                        synchronized (app) {
-                            try {
-                                app.updateTable();
-                            } catch (Exception ex) {
-                                System.err.println(ex.getMessage());
-                            }
-                            app.setVisible(true);
-                        }
-                    }
-                });
-            }
-        });
-        SystemTray.getSystemTray().remove(icon); //fixes windows bug (at least mostly
-        SystemTray.getSystemTray().add(icon);
+        UrtApp app = new UrtApp(configuration);
     }
 }

@@ -1,5 +1,6 @@
 package com.utstatus.server;
 
+import com.utstatus.model.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,33 +11,39 @@ import java.util.Map;
  */
 public class QueryUtility {
 
-    public static String getRawStatus() throws Exception {
-        ServerQuery query = new ServerQuery();
+    private Configuration config;
+
+    public QueryUtility(Configuration config) {
+        this.config = config;
+    }
+
+    public String getRawStatus() throws Exception {
+        ServerQuery query = new ServerQuery(config);
         query.send("getstatus");
         String response = query.getResponse();
         response = QueryParser.prepareParsedResponse(response);
         return response;
     }
 
-    public static String getServerInfo() throws Exception {
-        ServerQuery query = new ServerQuery();
+    public String getServerInfo() throws Exception {
+        ServerQuery query = new ServerQuery(config);
         query.send("getinfo");
         String response = query.getResponse();
         response = QueryParser.prepareParsedResponse(response);
         return response;
     }
 
-    public static Map getInfoMap(String info) throws Exception {
+    public Map getInfoMap(String info) throws Exception {
         Map infoMap = getServerInfo(info);
         return infoMap;
     }
 
-    public static Map getStatusMap(String status) throws Exception {
+    public Map getStatusMap(String status) throws Exception {
         Map statusMap = getServerInfo(status);
         return statusMap;
     }
 
-    private static Map getServerInfo(String resp) {
+    private Map getServerInfo(String resp) {
         if (!resp.equals("")) {
             resp = QueryParser.parseInfoResponse(resp);
             resp = resp.substring(1);

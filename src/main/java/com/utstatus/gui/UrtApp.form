@@ -9,7 +9,7 @@
             <Property name="text" type="java.lang.String" value="File"/>
           </Properties>
           <AuxValues>
-            <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="JMenuItem exit = new JMenuItem(&quot;Exit&quot;);&#xa;&#x9;&#x9;&#xa;&#x9;&#x9;exit.addActionListener(new ActionListener() {&#xa;&#x9;&#x9;&#x9;public void actionPerformed(ActionEvent e) {&#xa;&#x9;&#x9;&#x9;&#x9;SysTray.removeSysTrayIcon();&#xa;                             System.exit(0);&#xa;&#x9;&#x9;&#x9;}&#xa;&#x9;&#x9;});&#xa;jMenu1.add(exit);"/>
+            <AuxValue name="JavaCodeGenerator_LayoutCodePost" type="java.lang.String" value="JMenuItem exit = new JMenuItem(&quot;Exit&quot;);&#xa;&#x9;&#x9;&#xa;&#x9;&#x9;exit.addActionListener(new ActionListener() {&#xa;&#x9;&#x9;&#x9;public void actionPerformed(ActionEvent e) {&#xa;&#x9;&#x9;&#x9;&#x9;sysTray.removeSysTrayIcon();&#xa;                             System.exit(0);&#xa;&#x9;&#x9;&#x9;}&#xa;&#x9;&#x9;});&#xa;jMenu1.add(exit);"/>
           </AuxValues>
         </Menu>
         <Menu class="javax.swing.JMenu" name="jMenu2">
@@ -38,6 +38,7 @@
   <SyntheticProperties>
     <SyntheticProperty name="menuBar" type="java.lang.String" value="jMenuBar1"/>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
