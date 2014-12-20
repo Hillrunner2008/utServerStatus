@@ -331,7 +331,11 @@ public class UrtApp extends javax.swing.JDialog {
                 Player player = new Player();
                 player.setScore(Integer.parseInt(lineSplit[0]));
                 player.setPing(Integer.parseInt(lineSplit[1]));
-                player.setName(lineSplit[2]);
+                String playName = lineSplit[2];
+                if (player.getPing() == 0) {
+                    playName = playName + " (BOT)";
+                }
+                player.setName(playName);
                 players.add(player);
             }
         } catch (Exception ex) {

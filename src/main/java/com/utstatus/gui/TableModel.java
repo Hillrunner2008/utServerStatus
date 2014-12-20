@@ -56,7 +56,7 @@ public class TableModel extends AbstractTableModel {
             Integer ping = p.getPing();
             playerData.add(ping.toString());
             tableData.add(playerData);
-            if (p.getName().equals(config.getPlayerName())) {
+            if (p.getName().equalsIgnoreCase(config.getPlayerName())) {
                 primaryPlayer = p;
             }
         }
