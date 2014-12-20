@@ -5,9 +5,10 @@
  */
 package com.utstatus.gui;
 
+import com.google.common.base.Splitter;
 import com.utstatus.model.Configuration;
-import com.utstatus.server.QueryUtility;
 import com.utstatus.model.Player;
+import com.utstatus.server.QueryUtility;
 import com.utstatus.sound.SoundPlayer;
 import com.utstatus.sound.SoundPlayerService;
 import java.awt.TrayIcon;
@@ -15,6 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import javax.swing.*;
 import org.slf4j.Logger;
@@ -59,6 +61,7 @@ public class UrtApp extends javax.swing.JDialog {
 
     public void initScheduler() {
         try {
+            serverStatusCheck.timer.setInitialDelay(500);
             serverStatusCheck.timer.start();
         } catch (Exception ex) {
             logger.error("Error during initialization of scheduler", ex);
@@ -191,21 +194,24 @@ public class UrtApp extends javax.swing.JDialog {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
+                .addContainerGap(15, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
-                        .addComponent(resultsLabel)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(mapNameLabel)
-                        .addComponent(serverNameLabel)
+                    .addGroup(javax.swing.GroupLayout.Alignment.CENTER, layout.createSequentialGroup()
                         .addComponent(jLabel3)
-                        .addComponent(mapImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(300, 300, 300))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(186, 186, 186)
-                        .addComponent(audioCheckBox)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(joinButton)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.CENTER)
+                                .addComponent(serverNameLabel)
+                                .addComponent(mapNameLabel)
+                                .addComponent(mapImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 379, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(resultsLabel)
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(audioCheckBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(joinButton)))
+                        .addGap(15, 15, 15))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -216,9 +222,9 @@ public class UrtApp extends javax.swing.JDialog {
                 .addComponent(serverNameLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(mapNameLabel)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(mapImageLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 202, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addGap(24, 24, 24)
                 .addComponent(resultsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 9, Short.MAX_VALUE)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 207, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -277,7 +283,7 @@ public class UrtApp extends javax.swing.JDialog {
         if (statusInfo == null || serverInfo == null) {
             return;
         }
-        ArrayList<Player> playerList = getPlayerList(rawStatus);
+        List<Player> playerList = getPlayerList(rawStatus);
         try {
             maxClients = Integer.parseInt((String) serverInfoMap.get("sv_maxclients"));
         } catch (NumberFormatException e) {
@@ -308,16 +314,25 @@ public class UrtApp extends javax.swing.JDialog {
         tableModel.setData(playerList);
     }
 
-    private ArrayList<Player> getPlayerList(String rawStatus) {
+    private List<Player> getPlayerList(String rawReponse) {
         ArrayList<Player> players = new ArrayList<>();
-        String[] lines = rawStatus.split("\\n");
-        for (int i = 1; i < lines.length; i++) {
-            String[] lineSplit = breakLines(lines[i]);
-            Player player = new Player();
-            player.setScore(Integer.parseInt(lineSplit[0]));
-            player.setPing(Integer.parseInt(lineSplit[1]));
-            player.setName(lineSplit[2]);
-            players.add(player);
+        try {
+            List<String> lines = Splitter.on("\n").omitEmptyStrings().trimResults().splitToList(rawReponse);
+
+            for (int i = 0; i < lines.size(); i++) {
+                if (i == 0) {
+                    continue;
+                }
+                String line = lines.get(i);
+                String[] lineSplit = breakLines(line);
+                Player player = new Player();
+                player.setScore(Integer.parseInt(lineSplit[0]));
+                player.setPing(Integer.parseInt(lineSplit[1]));
+                player.setName(lineSplit[2]);
+                players.add(player);
+            }
+        } catch (Exception ex) {
+            //do nothing
         }
         return players;
     }
@@ -367,7 +382,7 @@ public class UrtApp extends javax.swing.JDialog {
         return playSound;
     }
 
-    public ArrayList<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return tableModel.getPlayers();
     }
 
@@ -389,7 +404,7 @@ public class UrtApp extends javax.swing.JDialog {
         private SoundPlayerService server = new SoundPlayerService();
         public boolean inGame = false;
         private boolean sendNotification = true;
-        private ArrayList<Player> playerList = new ArrayList<>();
+        private List<Player> playerList = new ArrayList<>();
 
         private Timer timer = new Timer(config.getPollDelay() * 1000, new ActionListener() {
             @Override

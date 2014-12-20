@@ -7,6 +7,7 @@ package com.utstatus.gui;
 import com.utstatus.model.Configuration;
 import com.utstatus.model.Player;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 public class TableModel extends AbstractTableModel {
@@ -15,8 +16,8 @@ public class TableModel extends AbstractTableModel {
     private static final int playerNameColumn = 0;
     private static final int pingColumn = 1;
     private static final int scoreColumn = 2;
-    private ArrayList<ArrayList<String>> tableData;
-    private ArrayList<Player> players;
+    private List<List<String>> tableData;
+    private List<Player> players;
     private Player primaryPlayer;
     private final Configuration config;
 
@@ -27,7 +28,7 @@ public class TableModel extends AbstractTableModel {
         primaryPlayer = null;
     }
 
-    public ArrayList<Player> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
@@ -43,12 +44,12 @@ public class TableModel extends AbstractTableModel {
         return primaryPlayer;
     }
 
-    public void setData(ArrayList<Player> players) {
+    public void setData(List<Player> players) {
         primaryPlayer = null;
         this.players = players;
         tableData.clear();
         for (Player p : players) {
-            ArrayList<String> playerData = new ArrayList<>();
+            List<String> playerData = new ArrayList<>();
             playerData.add(p.getName());
             Integer score = p.getScore();
             playerData.add(score.toString());
@@ -69,7 +70,7 @@ public class TableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        ArrayList<String> temp = new ArrayList<>();
+        List<String> temp = new ArrayList<>();
         temp = tableData.get(row);
         switch (col) {
             case playerNameColumn:
