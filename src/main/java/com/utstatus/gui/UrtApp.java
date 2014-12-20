@@ -15,9 +15,12 @@ import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
 import javax.swing.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -401,10 +404,10 @@ public class UrtApp extends javax.swing.JDialog {
 
     private class ServerStatusCheck {
 
-        private SoundPlayerService server = new SoundPlayerService();
         public boolean inGame = false;
         private boolean sendNotification = true;
         private List<Player> playerList = new ArrayList<>();
+        private URL audio = this.getClass().getClassLoader().getResource("ding.wav");
 
         private Timer timer = new Timer(config.getPollDelay() * 1000, new ActionListener() {
             @Override
@@ -461,7 +464,8 @@ public class UrtApp extends javax.swing.JDialog {
                 @Override
                 public void run() {
                     try {
-                        SoundPlayer player = server.getAudioPlayer();
+                        AudioInputStream audioIn = AudioSystem.getAudioInputStream(audio);
+                        SoundPlayer player = new SoundPlayer(audioIn);
                         player.start();
                     } catch (Exception ex) {
                         logger.error(ex.getMessage(), ex);

@@ -52,7 +52,7 @@ public class ServerQuery {
         while (true) {
             try {
                 dpacket = new DatagramPacket(buffer, buffer.length);
-                ds.setSoTimeout(90);
+                ds.setSoTimeout(200);
                 ds.receive(dpacket);
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
                 response += packet;

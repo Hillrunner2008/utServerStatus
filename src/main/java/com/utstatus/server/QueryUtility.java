@@ -3,6 +3,7 @@ package com.utstatus.server;
 import com.utstatus.model.Configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,8 +29,7 @@ public class QueryUtility {
     public String getServerInfo() throws Exception {
         ServerQuery query = new ServerQuery(config);
         query.send("getinfo");
-        String response = query.getResponse();
-        response = QueryParser.prepareParsedResponse(response);
+        String response = QueryParser.prepareParsedResponse(query.getResponse());
         return response;
     }
 
@@ -48,14 +48,14 @@ public class QueryUtility {
             resp = QueryParser.parseInfoResponse(resp);
             resp = resp.substring(1);
             String[] attributes = resp.split("\\\\");
-            ArrayList<String> keys = new ArrayList();
-            ArrayList<String> vals = new ArrayList();
+            List<String> keys = new ArrayList();
+            List<String> vals = new ArrayList();
             boolean direction = true;
-            for (int i = 0; i < attributes.length; i++) {
+            for (String attribute : attributes) {
                 if (direction) {
-                    keys.add(attributes[i]);
+                    keys.add(attribute);
                 } else {
-                    vals.add(attributes[i]);
+                    vals.add(attribute);
                 }
                 direction = (direction) ? false : true;
             }

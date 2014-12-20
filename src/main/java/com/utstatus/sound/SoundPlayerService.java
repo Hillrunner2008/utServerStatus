@@ -8,7 +8,6 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 
 public final class SoundPlayerService {
 
-    //To Do: Move this to a more appropriate place
     public SoundPlayer getAudioPlayer() throws UnsupportedAudioFileException, IOException {
         URL url = this.getClass().getClassLoader().getResource("ding.wav");
         AudioInputStream audioIn = AudioSystem.getAudioInputStream(url);
