@@ -5,11 +5,9 @@
  */
 package com.utstatus.gui;
 
-import com.utstatus.globals.Constants;
+import com.utstatus.model.Configuration;
 import com.utstatus.server.QueryUtility;
-import com.utstatus.main.Player;
-import java.awt.SystemTray;
-import java.awt.TrayIcon;
+import com.utstatus.model.Player;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -19,26 +17,15 @@ import javax.swing.*;
 
 public class UrtApp extends javax.swing.JDialog {
 
-    int maxClients = 0;
-    int playerCount = 0;
-    String results;
-    String mapImageID;
-    String currentMapID = "no_image";
-    String statusCommand = "getstatus";
-    TableModel tableModel = new TableModel();
-    boolean playSound = true;
-    private static UrtApp singleton;
-
-    public static UrtApp getInstance() {
-        if (singleton == null) {
-            try {
-                singleton = new UrtApp();
-            } catch (Exception ex) {
-                //do nothing
-            }
-        }
-        return singleton;
-    }
+    private SysTray sysTray;
+    private int maxClients = 0;
+    private int playerCount = 0;
+    private String results;
+    private String mapImageID;
+    private String currentMapID = "no_image";
+    private String statusCommand = "getstatus";
+    private TableModel tableModel = new TableModel();
+    private boolean playSound = true;
 
     /**
      * Creates new form urtApp
@@ -218,7 +205,7 @@ public class UrtApp extends javax.swing.JDialog {
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
         //To Do: add a check to see if player is already in game and grey out button if that is the case.
         try {
-            Launch(Constants.getExePath(), Constants.getIP() + ":" + Constants.getPortString());
+            Launch(Configuration.getExePath(), Configuration.getIP() + ":" + Configuration.getPortString());
         } catch (Exception ex) {
             ex.printStackTrace();
         }

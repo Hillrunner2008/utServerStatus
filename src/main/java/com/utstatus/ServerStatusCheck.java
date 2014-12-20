@@ -1,9 +1,7 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.utstatus.main;
 
+package com.utstatus;
+
+import com.utstatus.model.Player;
 import com.utstatus.gui.SysTray;
 import com.utstatus.gui.UrtApp;
 import com.utstatus.sound.SoundPlayer;

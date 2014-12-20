@@ -6,6 +6,6 @@ Author     : dcnorris
 <Servers><SERVER_ASSOCIATIONS>1
 <ip>209.190.50.170 </ip>
 <port>27960 </port> 
-<name>player </name>
-<exePath>t </exePath></SERVER_ASSOCIATIONS>
+<name>poppie </name>
+<exePath>/home/dcnorris/Downloads/UrbanTerror42/Quake3-UrT.x86_64 </exePath></SERVER_ASSOCIATIONS>
 </Servers>

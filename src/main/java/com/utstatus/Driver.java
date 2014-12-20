@@ -1,8 +1,4 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-package com.utstatus.main;
+package com.utstatus;
 
 import com.utstatus.gui.Setup;
 import com.utstatus.gui.SysTray;
@@ -11,6 +7,8 @@ import java.awt.SystemTray;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,14 +16,15 @@ import java.awt.event.ActionListener;
  */
 public class Driver {
 
-    private static SysTray sysTray;
+    private static final Logger logger = LoggerFactory.getLogger(Driver.class);
+    
     private static UrtApp app;
 
     public static void main(String[] args) throws Exception {
-
+        logger.info("Starting UT Status Check");
         Setup setup = new Setup();
         setup.setVisible(true);
-        sysTray = SysTray.getInstance();
+
         app = UrtApp.getInstance();
 
         TrayIcon icon = sysTray.getIcon();

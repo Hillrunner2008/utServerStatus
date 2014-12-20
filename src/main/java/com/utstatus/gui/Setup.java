@@ -1,19 +1,9 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
-/*
- * Setup.java
- *
- * Created on Sep 10, 2011, 11:04:20 PM
- */
 package com.utstatus.gui;
 
-import com.utstatus.globals.Constants;
+import com.utstatus.model.Configuration;
 import com.utstatus.persistence.xmlParser;
 import com.utstatus.persistence.xmlWriter;
-import com.utstatus.main.ServerStatusCheck;
+import com.utstatus.ServerStatusCheck;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
@@ -49,7 +39,7 @@ public class Setup extends javax.swing.JFrame {
         trigger.setName("trigger");
         trigger.setStartTime(new Date(System.currentTimeMillis() + 1000));
         trigger.setRepeatCount(SimpleTrigger.REPEAT_INDEFINITELY);
-        trigger.setRepeatInterval(Constants.getDelay() * 1000);
+        trigger.setRepeatInterval(Configuration.getDelay() * 1000);
 
         initComponents();
     }
@@ -195,10 +185,10 @@ public class Setup extends javax.swing.JFrame {
                 && jTextField2.getText() != null
                 && jTextField3.getText() != null
                 && exeTextField.getText() != null) {
-            Constants.setIP(jTextField1.getText());
-            Constants.setPort(Integer.parseInt(jTextField2.getText()));
-            Constants.setPlayerName(jTextField3.getText());
-            Constants.setExePath(exeTextField.getText());
+            Configuration.setIP(jTextField1.getText());
+            Configuration.setPort(Integer.parseInt(jTextField2.getText()));
+            Configuration.setPlayerName(jTextField3.getText());
+            Configuration.setExePath(exeTextField.getText());
             xmlWriter writer = new xmlWriter();
             try {
                 writer.savePlayerData(jTextField1.getText(), jTextField3.getText(), Integer.parseInt(jTextField2.getText()), exeTextField.getText());

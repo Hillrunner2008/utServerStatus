@@ -1,6 +1,6 @@
 package com.utstatus.server;
 
-import com.utstatus.globals.Constants;
+import com.utstatus.model.Configuration;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -26,9 +26,9 @@ public class ServerQuery {
     private String response;
 
     public ServerQuery() throws Exception {
-        this.port = Constants.getPort();
+        this.port = Configuration.getPort();
         this.ds = new DatagramSocket();
-        this.ia = InetAddress.getByName(Constants.getIP());
+        this.ia = InetAddress.getByName(Configuration.getIP());
     }
 
     public void send(String data) {

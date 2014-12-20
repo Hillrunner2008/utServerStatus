@@ -4,14 +4,11 @@ package com.utstatus.gui;
  *
  * @author dcnorris
  */
-import com.utstatus.globals.Constants;
-import com.utstatus.main.Player;
+import com.utstatus.model.Configuration;
+import com.utstatus.model.Player;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 
-/**
- * Model for table of features.
- */
 public class TableModel extends AbstractTableModel {
 
     private static final String[] columnNames = {"Player Name", "Ping", "Score"};
@@ -50,7 +47,7 @@ public class TableModel extends AbstractTableModel {
             Integer ping = p.getPing();
             playerData.add(ping.toString());
             tableData.add(playerData);
-            if (p.getName().equals(Constants.getPlayerName())) {
+            if (p.getName().equals(Configuration.getPlayerName())) {
                 primaryPlayer = p;
             }
         }

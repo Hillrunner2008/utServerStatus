@@ -1,13 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.utstatus.persistence;
 
-/**
- *
- * @author dcnorris
- */
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +11,7 @@ import org.xml.sax.SAXParseException;
 
 /**
  *
- * @author lorainelab
+ * @author dcnorris
  */
 public final class xmlParser {
 

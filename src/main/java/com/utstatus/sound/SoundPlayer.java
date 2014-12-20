@@ -8,18 +8,21 @@ import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class SoundPlayer extends Thread {
 
     private AudioInputStream is = null;
     private final int EXTERNAL_BUFFER_SIZE = 524288;
+    private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
 
     public SoundPlayer(AudioInputStream input) {
         is = input;
     }
 
+    @Override
     public void run() {
-
         AudioInputStream soundFile = is;
         if (soundFile == null) {
             System.out.println("Wave file not found.");
@@ -35,10 +38,10 @@ public class SoundPlayer extends Thread {
             auline = (SourceDataLine) AudioSystem.getLine(info);
             auline.open(format);
         } catch (LineUnavailableException e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             return;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error(e.getMessage(), e);
             return;
         }
 
@@ -58,8 +61,7 @@ public class SoundPlayer extends Thread {
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            return;
+            logger.error(e.getMessage(), e);
         } finally {
             auline.drain();
             auline.close();
