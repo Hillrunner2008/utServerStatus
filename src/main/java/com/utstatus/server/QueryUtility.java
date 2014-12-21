@@ -18,6 +18,16 @@ public class QueryUtility {
         this.config = config;
     }
 
+    public String getMasterList() throws Exception {
+        Configuration masterConfig = new Configuration();
+        masterConfig.setIp("178.32.60.13");
+        masterConfig.setPort(27950);
+        ServerQuery query = new ServerQuery(masterConfig);
+        query.send("getservers 68 full empty");
+        String response = query.getResponse();
+        return response;
+    }
+
     public String getRawStatus() throws Exception {
         ServerQuery query = new ServerQuery(config);
         query.send("getstatus");
@@ -57,9 +67,9 @@ public class QueryUtility {
                 } else {
                     vals.add(attribute);
                 }
-                direction = (direction) ? false : true;
+                direction = !(direction);
             }
-            Map<String, String> map = new HashMap();
+            Map<String, String> map = new HashMap<>();
             if (vals.size() > 0) {
                 for (int i = 0; i < keys.size(); i++) {
                     String key = keys.get(i);
