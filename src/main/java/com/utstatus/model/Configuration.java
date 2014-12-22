@@ -16,6 +16,11 @@ public class Configuration {
     public Configuration() {
     }
 
+    public Configuration(String ip, int port) {
+        this.ip = ip;
+        this.port = port;
+    }
+
     public String getIp() {
         return ip;
     }

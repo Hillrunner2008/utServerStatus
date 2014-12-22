@@ -1,10 +1,15 @@
 package com.utstatus.server;
 
 import com.utstatus.model.Configuration;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A class to query Q3 based games, like Urban Terror.
@@ -18,6 +23,8 @@ import java.net.InetAddress;
  */
 public class ServerQuery {
 
+    private static final Logger logger = LoggerFactory.getLogger(ServerQuery.class);
+
     private final byte oob = (byte) 0xff;
     private int port;
     private DatagramSocket ds;
@@ -25,10 +32,14 @@ public class ServerQuery {
     private InetAddress ia;
     private String response;
 
-    public ServerQuery(Configuration config) throws Exception {
+    public ServerQuery(Configuration config) {
         this.port = config.getPort();
-        this.ds = new DatagramSocket();
-        this.ia = InetAddress.getByName(config.getIp());
+        try {
+            this.ds = new DatagramSocket();
+            this.ia = InetAddress.getByName(config.getIp());
+        } catch (UnknownHostException | SocketException ex) {
+            logger.error("Could not connect to {}", config.getIp(), ex);
+        }
     }
 
     public void send(String data) {
@@ -40,8 +51,8 @@ public class ServerQuery {
             }
             dp = new DatagramPacket(buff, buff.length, ia, port);
             ds.send(dp);
-        } catch (Exception e) {
-            
+        } catch (IOException ex) {
+            logger.error("IOException thrown during communication with server", ex);
         }
     }
 
@@ -61,4 +72,24 @@ public class ServerQuery {
             }
         }
     }
+
+    public byte[] getRawResponse() {
+        DatagramPacket dpacket;
+        byte[] buffer = new byte[2048];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        while (true) {
+            try {
+                dpacket = new DatagramPacket(buffer, buffer.length);
+                ds.setSoTimeout(1000);
+                ds.receive(dpacket);
+                String packet = new String(dpacket.getData(), 0, dpacket.getLength());
+                baos.write(dpacket.getData(), 0, dpacket.getLength());
+            } catch (IOException e) {
+                break;
+            }
+        }
+        byte[] bytes = baos.toByteArray();
+        return bytes;
+    }
+
 }

@@ -59,6 +59,11 @@ public class Setup extends javax.swing.JFrame {
         exeTextField = new javax.swing.JTextField();
         exeBrowseBtn = new javax.swing.JButton();
         errorNotification = new javax.swing.JLabel();
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        viewMenu = new javax.swing.JMenu();
+        masterServerMenuItem = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setAlwaysOnTop(true);
@@ -92,6 +97,32 @@ public class Setup extends javax.swing.JFrame {
 
         errorNotification.setForeground(new java.awt.Color(255, 0, 0));
         errorNotification.setText("warning");
+
+        jMenu1.setText("File");
+
+        jMenuItem1.setText("exit");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        viewMenu.setText("View");
+
+        masterServerMenuItem.setText("view available servers");
+        masterServerMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                masterServerMenuItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(masterServerMenuItem);
+
+        jMenuBar1.add(viewMenu);
+
+        setJMenuBar(jMenuBar1);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -147,7 +178,7 @@ public class Setup extends javax.swing.JFrame {
                     .addComponent(exeTextField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(exeBrowseBtn)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 28, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
                 .addComponent(errorNotification)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(startButton, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -190,6 +221,14 @@ public class Setup extends javax.swing.JFrame {
         exeTextField.setText(f.getAbsolutePath());
     }//GEN-LAST:event_exeBrowseBtnActionPerformed
 
+    private void masterServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_masterServerMenuItemActionPerformed
+        
+    }//GEN-LAST:event_masterServerMenuItemActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        System.exit(0);
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel errorNotification;
     private javax.swing.JButton exeBrowseBtn;
@@ -200,9 +239,14 @@ public class Setup extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem masterServerMenuItem;
     private javax.swing.JTextField playerNameTextField;
     private javax.swing.JTextField portTextField;
     private javax.swing.JButton startButton;
+    private javax.swing.JMenu viewMenu;
     // End of variables declaration//GEN-END:variables
 
     private boolean isValidInput() {

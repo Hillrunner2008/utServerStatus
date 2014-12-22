@@ -38,7 +38,7 @@ public class UrtApp extends javax.swing.JDialog {
     private String results;
     private String mapImageID;
 
-    private TableModel tableModel;
+    private PlayerTableModel tableModel;
     private boolean playSound = true;
     private Configuration config;
     private SystemTrayManager sysTray;
@@ -53,7 +53,7 @@ public class UrtApp extends javax.swing.JDialog {
     @SuppressWarnings("SleepWhileInLoop")
     public UrtApp(Configuration config) throws Exception {
         this.config = config;
-        tableModel = new TableModel(config);
+        tableModel = new PlayerTableModel(config);
         initComponents();
         Setup setup = new Setup(config, this);
         setup.setVisible(true);
@@ -244,7 +244,6 @@ public class UrtApp extends javax.swing.JDialog {
     private void joinButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_joinButtonActionPerformed
         //To Do: add a check to see if player is already in game and grey out button if that is the case.
         try {
-
             Launch(config.getExecutablePath(), config.getIp() + ":" + config.getPortString());
         } catch (Exception ex) {
             logger.error("Could not launch urban terror with the provided path {}", config.getExecutablePath(), config.getIp() + ":" + config.getPortString(), ex);
@@ -279,26 +278,17 @@ public class UrtApp extends javax.swing.JDialog {
         maxClients = 0;
         playerCount = 0;
         currentMapID = "no_image";
-        String serverInfo = queryUtil.getServerInfo();
-        Map serverInfoMap = queryUtil.getInfoMap(serverInfo);
-        String rawStatus = queryUtil.getRawStatus();
-        Map statusInfo = queryUtil.getStatusMap(rawStatus);
-        if (statusInfo == null || serverInfo == null) {
-            return;
-        }
-        List<Player> playerList = getPlayerList(rawStatus);
-        try {
-            maxClients = Integer.parseInt((String) serverInfoMap.get("sv_maxclients"));
-        } catch (NumberFormatException e) {
-            maxClients = 0;
-        }
+        
+       
+        List<Player> playerList = null;
+       
 
         playerCount = playerList.size();
         if (playerCount == 0) {
-            getJoinButton().setEnabled(true);
+            joinButton.setEnabled(true);
         }
 
-        String mapName = (String) serverInfoMap.get("mapname");
+        String mapName = "";
         currentMapID = mapName;
         ClassLoader classloader = getClass().getClassLoader();
         if (classloader.getResource(currentMapID + ".jpg") != null) {
@@ -310,100 +300,18 @@ public class UrtApp extends javax.swing.JDialog {
         results = "(" + playerCount + "/" + maxClients + ")";
         resultsLabel.setText(results);
         String serverName = "unknown";
-        if (statusInfo.get("sv_hostname") != null) {
-            serverName = (String) statusInfo.get("sv_hostname");
-        }
+        serverName = null;
         serverNameLabel.setText("Server: " + serverName);
         tableModel.setData(playerList);
     }
 
-    private List<Player> getPlayerList(String rawReponse) {
-        ArrayList<Player> players = new ArrayList<>();
-        try {
-            List<String> lines = Splitter.on("\n").omitEmptyStrings().trimResults().splitToList(rawReponse);
 
-            for (int i = 0; i < lines.size(); i++) {
-                if (i == 0) {
-                    continue;
-                }
-                String line = lines.get(i);
-                String[] lineSplit = breakLines(line);
-                Player player = new Player();
-                player.setScore(Integer.parseInt(lineSplit[0]));
-                player.setPing(Integer.parseInt(lineSplit[1]));
-                String playName = lineSplit[2];
-                if (player.getPing() == 0) {
-                    playName = playName + " (BOT)";
-                }
-                player.setName(playName);
-                players.add(player);
-            }
-        } catch (Exception ex) {
-            //do nothing
-        }
-        return players;
-    }
-
-    private String[] breakLines(String line) {
-        String[] thisLine = new String[3];
-        String scorePing = line.substring(0, line.indexOf('\"'));
-        String[] tempSplit = scorePing.split(" ");
-        thisLine[0] = tempSplit[0]; // Score
-        thisLine[1] = tempSplit[1]; // Ping
-        thisLine[2] = line.substring(line.indexOf('\"') + 1, line.lastIndexOf('\"'));
-        return thisLine;
-    }
 
     public static void Launch(String pathToExe, String serverIP) throws Exception {
         File game = new File(pathToExe);
         ProcessBuilder processBuilder = new ProcessBuilder(pathToExe, "+connect", serverIP);
         processBuilder.directory(new File(game.getParent()));
         processBuilder.start();
-    }
-
-    public int getActiveClients() {
-        return playerCount;
-    }
-
-    public void setActiveClients(int activeClients) {
-        this.playerCount = activeClients;
-    }
-
-    public int getMaxClients() {
-        return maxClients;
-    }
-
-    public void setMaxClients(int maxClients) {
-        this.maxClients = maxClients;
-    }
-
-    public String getMapName() {
-        return mapImageID;
-    }
-
-    public JButton getJoinButton() {
-        return joinButton;
-    }
-
-    public boolean getPlaySound() {
-        return playSound;
-    }
-
-    public List<Player> getPlayers() {
-        return tableModel.getPlayers();
-    }
-
-    public Player getPrimaryPlayer() {
-        Player player = tableModel.getPrimaryPlayer();
-        if (player == null) {
-            getJoinButton().setEnabled(true);
-        }
-        return player;
-    }
-
-    public void setPlaySound(boolean playsound) {
-        audioCheckBox.setSelected(playsound);
-        this.playSound = playsound;
     }
 
     private class ServerStatusCheck {
@@ -423,29 +331,27 @@ public class UrtApp extends javax.swing.JDialog {
         private void execute() {
             try {
                 updateTable();
-                int maxClients = getMaxClients();
-                int activeClients = getActiveClients();
-                String results = "(" + activeClients + "/" + maxClients + ")" + " currently playing";
-                String mapName = "Map: " + getMapName();
+                String results = "(" + playerCount + "/" + maxClients + ")" + " currently playing";
+                String mapName = "Map: " + mapImageID;
 
-                playerList = getPlayers();
+                playerList = tableModel.getPlayers();
                 if (!playerList.isEmpty()) {
                     //This is a test for reseting the alert mechanism automatically as needed.
-                    if (activeClients < 2) {
+                    if (playerCount < 2) {
                         sendNotification = true;
                     }
                     //If the player is the only one in the game do not send alert 
-                    if (getPrimaryPlayer() != null) {
+                    if (tableModel.getPrimaryPlayer() != null) {
                         sendNotification = false;
-                        getJoinButton().setEnabled(false);
+                        joinButton.setEnabled(false);
                         //If the player is not the only activeClient in the game send alert
-                        if (activeClients > 1) {
+                        if (playerCount > 1) {
                             //check if game is active (i.e. beep until your first kill)
-                            if (getPrimaryPlayer().getScore() < 1) {
+                            if (tableModel.getPrimaryPlayer().getScore() < 1) {
                                 sendNotification = true;
                             } else {
                                 //stop sending audio alerts until re-enabled from gui                            
-                                setPlaySound(false);
+                                playSound = false;
                             }
                         }
                     }
@@ -453,7 +359,7 @@ public class UrtApp extends javax.swing.JDialog {
                     if (sendNotification) {
                         sysTray.getIcon().displayMessage("One in the chamber: players now online", "Map Name: " + mapName + " " + results,
                                 TrayIcon.MessageType.INFO);
-                        if (getPlaySound()) {
+                        if (playSound) {
                             playSound();
                         }
                     }

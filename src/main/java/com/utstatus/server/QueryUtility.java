@@ -1,10 +1,12 @@
 package com.utstatus.server;
 
+import com.google.common.base.Optional;
 import com.utstatus.model.Configuration;
+import com.utstatus.model.UtServer;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  *
@@ -12,23 +14,26 @@ import java.util.Map;
  */
 public class QueryUtility {
 
-    private Configuration config;
+    private final Configuration config;
 
     public QueryUtility(Configuration config) {
         this.config = config;
     }
 
-    public String getMasterList() throws Exception {
+    private static byte[] getRawMasterResponse() {
         Configuration masterConfig = new Configuration();
-        masterConfig.setIp("178.32.60.13");
-        masterConfig.setPort(27950);
+        masterConfig.setIp("master.urbanterror.info");
+        masterConfig.setPort(27900);
         ServerQuery query = new ServerQuery(masterConfig);
         query.send("getservers 68 full empty");
-        String response = query.getResponse();
-        return response;
+        return query.getRawResponse();
     }
 
-    public String getRawStatus() throws Exception {
+    public static List<UtServer> getMasterList() {
+        return parseMasterResponse(getRawMasterResponse());
+    }
+
+    public String getServerStatus() {
         ServerQuery query = new ServerQuery(config);
         query.send("getstatus");
         String response = query.getResponse();
@@ -36,50 +41,58 @@ public class QueryUtility {
         return response;
     }
 
-    public String getServerInfo() throws Exception {
+    public String getServerInfo() {
         ServerQuery query = new ServerQuery(config);
         query.send("getinfo");
         String response = QueryParser.prepareParsedResponse(query.getResponse());
         return response;
     }
 
-    public Map getInfoMap(String info) throws Exception {
-        Map infoMap = getServerInfo(info);
-        return infoMap;
-    }
+    private static List<UtServer> parseMasterResponse(byte[] bytes) {
+        List<UtServer> serverList = new ArrayList<>();
+        int next, start = ArrayUtils.indexOf(bytes, (byte) 92, 0); //this should always be 22
+        byte b;
+        //the implication is this loop will always enter with i on the indexOf a '/':
+        Optional<UtServer> server = Optional.absent();
+        for (int i = start; i < bytes.length; i++) {
 
-    public Map getStatusMap(String status) throws Exception {
-        Map statusMap = getServerInfo(status);
-        return statusMap;
-    }
+            //this might be out of bounds at the end
+            //hopefully its always the last one
+            try {
+                b = bytes[i];
+            } catch (ArrayIndexOutOfBoundsException ex) {
+                break;
+            }
 
-    private Map getServerInfo(String resp) {
-        if (!resp.equals("")) {
-            resp = QueryParser.parseInfoResponse(resp);
-            resp = resp.substring(1);
-            String[] attributes = resp.split("\\\\");
-            List<String> keys = new ArrayList();
-            List<String> vals = new ArrayList();
-            boolean direction = true;
-            for (String attribute : attributes) {
-                if (direction) {
-                    keys.add(attribute);
-                } else {
-                    vals.add(attribute);
-                }
-                direction = !(direction);
+            //find the index of the next '/': (this should always be 7 more
+            next = ArrayUtils.indexOf(bytes, (byte) 92, i + 1);
+
+            try { //hax way to not worry about reaching the end
+                server = parseServerIpHost(Arrays.copyOfRange(bytes, i + 1, next));
+            } catch (IllegalArgumentException ex) {
+                //do nothing
             }
-            Map<String, String> map = new HashMap<>();
-            if (vals.size() > 0) {
-                for (int i = 0; i < keys.size(); i++) {
-                    String key = keys.get(i);
-                    String val = vals.get(i);
-                    map.put(key, val);
-                }
+            if (server.isPresent()) {
+                serverList.add(server.get());
             }
-            return map;
-        } else {
-            return null;
+
+            i = next - 1;
         }
+        return serverList;
+    }
+
+    private static Optional<UtServer> parseServerIpHost(byte[] series) {
+        if (series.length != 6) {
+            return Optional.absent();
+        }
+
+        // the &0xff "turns" the signed byte into an unsigned (in essence)
+        String ip
+                = (series[0] & 0xff) + "."
+                + (series[1] & 0xff) + "."
+                + (series[2] & 0xff) + "."
+                + (series[3] & 0xff);
+        int port = (series[4] * 256) + series[5];
+        return Optional.<UtServer>fromNullable(new UtServer(ip, port));
     }
 }

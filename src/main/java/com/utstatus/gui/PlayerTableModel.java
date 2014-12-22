@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
-public class TableModel extends AbstractTableModel {
+public class PlayerTableModel extends AbstractTableModel {
 
     private static final String[] columnNames = {"Player Name", "Ping", "Score"};
     private static final int playerNameColumn = 0;
@@ -21,7 +21,7 @@ public class TableModel extends AbstractTableModel {
     private Player primaryPlayer;
     private final Configuration config;
 
-    public TableModel(Configuration config) {
+    public PlayerTableModel(Configuration config) {
         this.config = config;
         tableData = new ArrayList<>();
         players = new ArrayList<>();
