@@ -28,4 +28,13 @@ public enum ServerType {
     public int getValue() {
         return value;
     }
+
+    public static ServerType findByValue(int value) {
+        for (ServerType st : values()) {
+            if (st.getValue() == value) {
+                return st;
+            }
+        }
+        throw new IllegalArgumentException();
+    }
 }

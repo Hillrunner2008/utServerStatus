@@ -1,9 +1,12 @@
 package com.utstatus.model;
 
 import com.google.common.base.Splitter;
-import static com.utstatus.model.ResponseConstants.GAMETYPE;
+import static com.utstatus.model.ResponseConstants.HOSTNAME;
 import com.utstatus.server.QueryUtility;
+import java.util.HashMap;
 import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,9 +55,14 @@ public class UtServer {
 
     private void initServerInfo(String infoResponse) {
         logger.info(infoResponse);
-        for (String s : Splitter.on('\\').omitEmptyStrings().trimResults().split(infoResponse)) {
-            if (s.equals(GAMETYPE)){}
+        List<String> responseContent = Splitter.on('\\').omitEmptyStrings().trimResults().splitToList(infoResponse);
+        responseContent = responseContent.subList(1, responseContent.size());
+        ListIterator<String> iter = responseContent.listIterator();
+        Map<String, String> serverInfoMap = new HashMap<>();
+        while (iter.hasNext()) {
+            serverInfoMap.put(iter.next(), iter.next());
         }
+        name = serverInfoMap.get(HOSTNAME);        
     }
 
     private void initServerStatus(String statusResponse) {

@@ -11,5 +11,18 @@ package com.utstatus.model;
  */
 public class ResponseConstants {
 
+    public static final String MOD_VERSION = "modversion";
+    public static final String GAME = "game";
+    public static final String AUTH = "auth";
+    public static final String PURE = " pure";
     public static final String GAMETYPE = "gametype";
+    public static final String MAX_CLIENTS = " sv_maxclients";
+    public static final String BOTS = " bots";
+    public static final String CLIENTS = " clients";
+    public static final String MAP_NAME = " mapname";
+    public static final String HOSTNAME = " hostname";
+    public static final String PROTOCOL = " protocol";
+
+    private ResponseConstants() {
+    }
 }
