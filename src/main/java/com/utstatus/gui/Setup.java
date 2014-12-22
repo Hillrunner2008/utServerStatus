@@ -18,20 +18,22 @@ import org.slf4j.LoggerFactory;
  * @author dcnorris
  */
 public class Setup extends javax.swing.JFrame {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(Setup.class);
-
+    
     private JFileChooser exeChooser;
     private Configuration config;
     private UrtApp app;
-
+    private ServerSelectionView ssv;
+    
     public Setup(Configuration config, UrtApp app) {
         this.config = config;
         this.app = app;
         initFileChooser();
+        ssv = new ServerSelectionView();
         initComponents();
     }
-
+    
     private void initFileChooser() {
         exeChooser = new JFileChooser();
         exeChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -206,7 +208,7 @@ public class Setup extends javax.swing.JFrame {
         } catch (IOException ex) {
             logger.error("Error persisting configuration", ex);
         }
-
+        
         app.initScheduler();
         app.setVisible(true);
     }//GEN-LAST:event_startButtonActionPerformed
@@ -222,7 +224,7 @@ public class Setup extends javax.swing.JFrame {
     }//GEN-LAST:event_exeBrowseBtnActionPerformed
 
     private void masterServerMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_masterServerMenuItemActionPerformed
-        
+        ssv.setVisible(true);
     }//GEN-LAST:event_masterServerMenuItemActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
@@ -265,5 +267,5 @@ public class Setup extends javax.swing.JFrame {
         }
         return true;
     }
-
+    
 }

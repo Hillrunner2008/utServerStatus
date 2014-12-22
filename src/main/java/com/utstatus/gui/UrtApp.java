@@ -5,12 +5,11 @@
  */
 package com.utstatus.gui;
 
-import com.google.common.base.Splitter;
 import com.utstatus.model.Configuration;
 import com.utstatus.model.Player;
+import com.utstatus.model.UtServer;
 import com.utstatus.server.QueryUtility;
 import com.utstatus.sound.SoundPlayer;
-import com.utstatus.sound.SoundPlayerService;
 import java.awt.TrayIcon;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -18,7 +17,6 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.swing.*;
@@ -30,12 +28,11 @@ public class UrtApp extends javax.swing.JDialog {
     private static final Logger logger = LoggerFactory.getLogger(UrtApp.class);
 
     public static final String APPLICATION_NAME = "UT Status App";
-    private String currentMapID = "no_image";
+    private String mapName = "no_image";
     private String statusCommand = "getstatus";
 
     private int maxClients = 0;
     private int playerCount = 0;
-    private String results;
     private String mapImageID;
 
     private PlayerTableModel tableModel;
@@ -44,6 +41,7 @@ public class UrtApp extends javax.swing.JDialog {
     private SystemTrayManager sysTray;
     private QueryUtility queryUtil;
     private ServerStatusCheck serverStatusCheck;
+    private UtServer server;
 
     /**
      * Creates new form urtApp
@@ -54,6 +52,7 @@ public class UrtApp extends javax.swing.JDialog {
     public UrtApp(Configuration config) throws Exception {
         this.config = config;
         tableModel = new PlayerTableModel(config);
+        server = new UtServer(config.getIp(), config.getPort());
         initComponents();
         Setup setup = new Setup(config, this);
         setup.setVisible(true);
@@ -111,7 +110,7 @@ public class UrtApp extends javax.swing.JDialog {
         jScrollPane1.setViewportView(playerTable);
         playerTable.setModel(tableModel);
 
-        mapImageLabel.setIcon(new javax.swing.ImageIcon(this.getClass().getResource("/"+currentMapID +".jpg")));
+        mapImageLabel.setIcon(new javax.swing.ImageIcon(this.getClass().getResource("/"+mapName +".jpg")));
 
         joinButton.setFont(new java.awt.Font("SansSerif", 1, 14)); // NOI18N
         joinButton.setText("Join Server");
@@ -275,37 +274,29 @@ public class UrtApp extends javax.swing.JDialog {
     // End of variables declaration//GEN-END:variables
 
     public void updateTable() throws Exception {
-        maxClients = 0;
-        playerCount = 0;
-        currentMapID = "no_image";
-        
-       
-        List<Player> playerList = null;
-       
+        server.refreshServer();
+        maxClients = server.getMaxClients();
+        playerCount = server.getClients();
+        mapName = server.getMap();
 
-        playerCount = playerList.size();
+        List<Player> playerList = server.getPlayers();
         if (playerCount == 0) {
             joinButton.setEnabled(true);
         }
 
-        String mapName = "";
-        currentMapID = mapName;
+
         ClassLoader classloader = getClass().getClassLoader();
-        if (classloader.getResource(currentMapID + ".jpg") != null) {
-            mapImageLabel.setIcon(new ImageIcon(classloader.getResource(currentMapID + ".jpg")));
+        if (classloader.getResource(mapName + ".jpg") != null) {
+            mapImageLabel.setIcon(new ImageIcon(classloader.getResource(mapName + ".jpg")));
         }
         mapImageID = "Map: ";
         mapImageID += mapName;
         mapNameLabel.setText(mapImageID);
-        results = "(" + playerCount + "/" + maxClients + ")";
-        resultsLabel.setText(results);
-        String serverName = "unknown";
-        serverName = null;
+        resultsLabel.setText(server.getCapacityInfo());
+        String serverName = server.getName();
         serverNameLabel.setText("Server: " + serverName);
         tableModel.setData(playerList);
     }
-
-
 
     public static void Launch(String pathToExe, String serverIP) throws Exception {
         File game = new File(pathToExe);

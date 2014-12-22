@@ -1,8 +1,10 @@
 package com.utstatus.model;
 
+import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
-import static com.utstatus.model.ResponseConstants.HOSTNAME;
+import static com.utstatus.model.ResponseConstants.*;
 import com.utstatus.server.QueryUtility;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
@@ -21,18 +23,18 @@ public class UtServer {
 
     private String ip;
     private int port;
-    private int qty;
     private List<Player> players;
     private boolean isFull;
     private boolean isEmpty;
     //sv_hostname
     private String name;
     private String map;
-    private String playerInfo;
+    private String capacityInfo;
     private ServerType type;
     private int ping;
     //sv_maxclients
-    private int capacity;
+    private int maxClients;
+    private int clients;
 
     public UtServer(String ip, int port) {
         this.ip = ip;
@@ -54,7 +56,7 @@ public class UtServer {
     }
 
     private void initServerInfo(String infoResponse) {
-        logger.info(infoResponse);
+        logger.debug(infoResponse);
         List<String> responseContent = Splitter.on('\\').omitEmptyStrings().trimResults().splitToList(infoResponse);
         responseContent = responseContent.subList(1, responseContent.size());
         ListIterator<String> iter = responseContent.listIterator();
@@ -62,11 +64,30 @@ public class UtServer {
         while (iter.hasNext()) {
             serverInfoMap.put(iter.next(), iter.next());
         }
-        name = serverInfoMap.get(HOSTNAME);        
+        name = serverInfoMap.get(HOSTNAME);
+        map = serverInfoMap.get(MAP_NAME);
+        type = ServerType.findByValue(Integer.parseInt(serverInfoMap.get(GAMETYPE)));
+        clients = Integer.parseInt(serverInfoMap.get(CLIENTS));
+        maxClients = Integer.parseInt(serverInfoMap.get(MAX_CLIENTS));
+        capacityInfo = "(" + clients + "/" + maxClients + ")";
+        isEmpty = clients == 0;
+        isFull = clients == maxClients;
     }
 
     private void initServerStatus(String statusResponse) {
-//        logger.info(statusResponse);
+        logger.info(statusResponse);
+        players = new ArrayList<>();
+        List<String> responseContent = Splitter.on('\n').omitEmptyStrings().trimResults().splitToList(statusResponse);
+        responseContent = responseContent.subList(1, responseContent.size());
+        for (String playerLine : responseContent) {
+            List<String> playerDetails = Splitter.on(' ').omitEmptyStrings().trimResults().splitToList(playerLine);
+            Player player = new Player();
+            player.setScore(Integer.parseInt(playerDetails.get(0)));
+            player.setPing(Integer.parseInt(playerDetails.get(1)));
+            player.setName(CharMatcher.is('\"').trimFrom(playerDetails.get(2)));
+            players.add(player);
+        }
+
     }
 
     public String getIp() {
@@ -83,10 +104,6 @@ public class UtServer {
 
     public boolean isIsEmpty() {
         return isEmpty;
-    }
-
-    public int getQty() {
-        return qty;
     }
 
     public int getBotCount() {
@@ -107,8 +124,8 @@ public class UtServer {
         return map;
     }
 
-    public String getPlayerInfo() {
-        return playerInfo;
+    public String getCapacityInfo() {
+        return capacityInfo;
     }
 
     public ServerType getType() {
@@ -117,6 +134,18 @@ public class UtServer {
 
     public int getPing() {
         return ping;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
+    }
+
+    public int getMaxClients() {
+        return maxClients;
+    }
+
+    public int getClients() {
+        return clients;
     }
 
     @Override
