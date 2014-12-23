@@ -5,6 +5,9 @@
  */
 package com.utstatus.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author dcnorris
@@ -17,9 +20,13 @@ public enum ServerType {
     FTL(5),
     FFA(0),
     BOMB(8),
+    JUMP(9),
+    FREEZE(10),
+    LMS(1),
     CAPTURE_HOLD(6);
 
     private final int value;
+    private static final Logger logger = LoggerFactory.getLogger(ServerType.class);
 
     private ServerType(final int newValue) {
         value = newValue;
@@ -35,6 +42,7 @@ public enum ServerType {
                 return st;
             }
         }
+        logger.info("ServerType {} not found", value);
         throw new IllegalArgumentException();
     }
 }

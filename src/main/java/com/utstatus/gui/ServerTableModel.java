@@ -4,8 +4,22 @@ package com.utstatus.gui;
  *
  * @author dcnorris
  */
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.ListeningExecutorService;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.utstatus.model.UtServer;
+import java.net.URL;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.table.AbstractTableModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,8 +36,8 @@ public class ServerTableModel extends AbstractTableModel {
 
     private List<UtServer> servers;
 
-    public ServerTableModel(List<UtServer> servers) {
-        this.servers = servers;
+    public ServerTableModel() {
+        this.servers = new ArrayList<>();
     }
 
     @Override
@@ -36,9 +50,25 @@ public class ServerTableModel extends AbstractTableModel {
         return (servers == null) ? 0 : servers.size();
     }
 
-    public void setData(List<UtServer> servers) {
-        this.servers = servers;
-        fireTableDataChanged();
+    public void setData(Set<UtServer> servers) {
+        this.servers = new ArrayList<>();
+        this.servers.addAll(servers);
+        SwingWorker x = new SwingWorker() {
+            @Override
+            protected String doInBackground() throws Exception {
+                servers.stream().forEach(server -> {
+                    server.refreshServer();
+                    fireTableDataChanged();
+                });
+                return "";
+            }
+
+            @Override
+            protected void done() {
+                fireTableDataChanged();
+            }
+        };
+        x.execute();
     }
 
     @Override

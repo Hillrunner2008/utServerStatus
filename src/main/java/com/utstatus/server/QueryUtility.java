@@ -3,9 +3,9 @@ package com.utstatus.server;
 import com.google.common.base.Optional;
 import com.utstatus.model.Configuration;
 import com.utstatus.model.UtServer;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -29,7 +29,7 @@ public class QueryUtility {
         return query.getRawResponse();
     }
 
-    public static List<UtServer> getMasterList() {
+    public static Set<UtServer> getMasterList() {
         return parseMasterResponse(getRawMasterResponse());
     }
 
@@ -48,8 +48,8 @@ public class QueryUtility {
         return response;
     }
 
-    private static List<UtServer> parseMasterResponse(byte[] bytes) {
-        List<UtServer> serverList = new ArrayList<>();
+    private static Set<UtServer> parseMasterResponse(byte[] bytes) {
+        Set<UtServer> serverList = new HashSet<>();
         int next, start = ArrayUtils.indexOf(bytes, (byte) 92, 0); //this should always be 22
         byte b;
         //the implication is this loop will always enter with i on the indexOf a '/':
@@ -73,7 +73,7 @@ public class QueryUtility {
                 //do nothing
             }
             if (server.isPresent()) {
-                serverList.add(server.get());
+                serverList.add(server.get());                
             }
 
             i = next - 1;
@@ -93,6 +93,9 @@ public class QueryUtility {
                 + (series[2] & 0xff) + "."
                 + (series[3] & 0xff);
         int port = (series[4] * 256) + series[5];
+        if (port <= 0) {
+            return Optional.absent();
+        }
         return Optional.<UtServer>fromNullable(new UtServer(ip, port));
     }
 }

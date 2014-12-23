@@ -39,7 +39,6 @@ public class UtServer {
     public UtServer(String ip, int port) {
         this.ip = ip;
         this.port = port;
-        init();
     }
 
     public void refreshServer() {
@@ -50,9 +49,9 @@ public class UtServer {
         Configuration serverConfig = new Configuration(ip, port);
         QueryUtility queryUtil = new QueryUtility(serverConfig);
         String infoResponse = queryUtil.getServerInfo();
-        String statusResponse = queryUtil.getServerStatus();
+//        String statusResponse = queryUtil.getServerStatus();
         initServerInfo(infoResponse);
-        initServerStatus(statusResponse);
+//        initServerStatus(statusResponse);
     }
 
     private void initServerInfo(String infoResponse) {
@@ -75,7 +74,7 @@ public class UtServer {
     }
 
     private void initServerStatus(String statusResponse) {
-        logger.info(statusResponse);
+        logger.debug(statusResponse);
         players = new ArrayList<>();
         List<String> responseContent = Splitter.on('\n').omitEmptyStrings().trimResults().splitToList(statusResponse);
         responseContent = responseContent.subList(1, responseContent.size());

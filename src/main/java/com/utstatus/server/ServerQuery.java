@@ -80,7 +80,7 @@ public class ServerQuery {
         while (true) {
             try {
                 dpacket = new DatagramPacket(buffer, buffer.length);
-                ds.setSoTimeout(1000);
+                ds.setSoTimeout(200);
                 ds.receive(dpacket);
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
                 baos.write(dpacket.getData(), 0, dpacket.getLength());
