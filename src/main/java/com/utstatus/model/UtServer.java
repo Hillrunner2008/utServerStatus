@@ -157,7 +157,7 @@ public class UtServer {
 
     @Override
     public String toString() {
-        return "UtServer{" + "ip=" + ip + ", port=" + port + '}';
+        return ip + ":" + port;
     }
 
     @Override

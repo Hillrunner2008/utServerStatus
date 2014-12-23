@@ -58,7 +58,6 @@ public class ServerTableModel extends AbstractTableModel {
 //                        if (!hasBots) {
                             servers.add(server);
                             fireTableDataChanged();
-                            break;
 //                        }
 
                     }
