@@ -39,6 +39,12 @@ public class QueryParser {
         return strippedResponse;
     }
 
+    public static String stripColors(String input) {
+        Pattern r = Pattern.compile("\\^.");
+        Matcher m = r.matcher(input);
+        return m.replaceAll("");
+    }
+
     public static List<Player> getPlayerList(String rawReponse) {
         List<Player> players = new ArrayList<>();
         try {

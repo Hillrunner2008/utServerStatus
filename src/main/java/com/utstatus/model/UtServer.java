@@ -3,6 +3,7 @@ package com.utstatus.model;
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Splitter;
 import static com.utstatus.model.ResponseConstants.*;
+import static com.utstatus.server.QueryParser.stripColors;
 import com.utstatus.server.QueryUtility;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,7 +64,7 @@ public class UtServer {
         while (iter.hasNext()) {
             serverInfoMap.put(iter.next(), iter.next());
         }
-        name = serverInfoMap.get(HOSTNAME);
+        name = stripColors(serverInfoMap.get(HOSTNAME));
         map = serverInfoMap.get(MAP_NAME);
         type = ServerType.findByValue(Integer.parseInt(serverInfoMap.get(GAMETYPE)));
         clients = Integer.parseInt(serverInfoMap.get(CLIENTS));

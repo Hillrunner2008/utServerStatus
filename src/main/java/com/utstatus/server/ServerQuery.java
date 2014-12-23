@@ -30,7 +30,7 @@ public class ServerQuery {
     private DatagramSocket ds;
     private DatagramPacket dp;
     private InetAddress ia;
-    private String response;
+    private StringBuilder response;
 
     public ServerQuery(Configuration config) {
         this.port = config.getPort();
@@ -59,16 +59,16 @@ public class ServerQuery {
     public String getResponse() {
         DatagramPacket dpacket;
         byte[] buffer = new byte[2048];
-        response = "";
+        response = new StringBuilder();
         while (true) {
             try {
                 dpacket = new DatagramPacket(buffer, buffer.length);
-                ds.setSoTimeout(1000);
+                ds.setSoTimeout(200);
                 ds.receive(dpacket);
                 String packet = new String(dpacket.getData(), 0, dpacket.getLength());
-                response += packet;
+                response.append(packet);
             } catch (IOException e) {
-                return response;
+                return response.toString();
             }
         }
     }

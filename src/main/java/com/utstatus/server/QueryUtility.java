@@ -7,32 +7,35 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author dcnorris
  */
 public class QueryUtility {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(QueryUtility.class);
     private final Configuration config;
-
+    
     public QueryUtility(Configuration config) {
         this.config = config;
     }
-
+    
     private static byte[] getRawMasterResponse() {
         Configuration masterConfig = new Configuration();
         masterConfig.setIp("master.urbanterror.info");
         masterConfig.setPort(27900);
         ServerQuery query = new ServerQuery(masterConfig);
-        query.send("getservers 68 full empty");
+        query.send("getservers 68 full");
         return query.getRawResponse();
     }
-
+    
     public static Set<UtServer> getMasterList() {
         return parseMasterResponse(getRawMasterResponse());
     }
-
+    
     public String getServerStatus() {
         ServerQuery query = new ServerQuery(config);
         query.send("getstatus");
@@ -40,14 +43,14 @@ public class QueryUtility {
         response = QueryParser.prepareParsedResponse(response);
         return response;
     }
-
+    
     public String getServerInfo() {
         ServerQuery query = new ServerQuery(config);
         query.send("getinfo");
         String response = QueryParser.prepareParsedResponse(query.getResponse());
         return response;
     }
-
+    
     private static Set<UtServer> parseMasterResponse(byte[] bytes) {
         Set<UtServer> serverList = new HashSet<>();
         int next, start = ArrayUtils.indexOf(bytes, (byte) 92, 0); //this should always be 22
@@ -66,21 +69,21 @@ public class QueryUtility {
 
             //find the index of the next '/': (this should always be 7 more
             next = ArrayUtils.indexOf(bytes, (byte) 92, i + 1);
-
+            
             try { //hax way to not worry about reaching the end
                 server = parseServerIpHost(Arrays.copyOfRange(bytes, i + 1, next));
             } catch (IllegalArgumentException ex) {
                 //do nothing
             }
-            if (server.isPresent()) {
-                serverList.add(server.get());                
+            if (server.isPresent()) {                
+                serverList.add(server.get());
             }
-
+            
             i = next - 1;
         }
         return serverList;
     }
-
+    
     private static Optional<UtServer> parseServerIpHost(byte[] series) {
         if (series.length != 6) {
             return Optional.absent();

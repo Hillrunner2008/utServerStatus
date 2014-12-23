@@ -1,5 +1,7 @@
 package com.utstatus.model;
 
+import static com.utstatus.server.QueryParser.stripColors;
+
 /**
  *
  * @author dcnorris
@@ -32,7 +34,7 @@ public class Player {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = stripColors(name);
     }
 
     public boolean isIsBot() {
@@ -42,5 +44,7 @@ public class Player {
     public void setIsBot(boolean isBot) {
         this.isBot = isBot;
     }
+
+   
 
 }
