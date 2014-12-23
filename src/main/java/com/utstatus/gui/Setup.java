@@ -2,16 +2,19 @@ package com.utstatus.gui;
 
 import com.google.common.base.Charsets;
 import static com.google.common.base.Strings.isNullOrEmpty;
-import com.google.common.io.Files;
-import com.google.common.primitives.Ints;
+import static com.google.common.io.Files.write;
+import static com.google.common.primitives.Ints.tryParse;
 import com.utstatus.Driver;
 import com.utstatus.model.Configuration;
-import com.utstatus.persistence.ConfigurationParser;
+import static com.utstatus.persistence.ConfigurationParser.toJson;
 import java.io.File;
 import java.io.IOException;
+import static java.lang.Integer.parseInt;
+import static java.lang.System.exit;
+import static java.lang.System.getProperty;
 import javax.swing.JFileChooser;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  *
@@ -19,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public class Setup extends javax.swing.JFrame {
     
-    private static final Logger logger = LoggerFactory.getLogger(Setup.class);
+    private static final Logger logger = getLogger(Setup.class);
     
     private JFileChooser exeChooser;
     private Configuration config;
@@ -198,17 +201,17 @@ public class Setup extends javax.swing.JFrame {
     private void startButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startButtonActionPerformed
         if (isValidInput()) {
             config.setIp(ipAddressTextField.getText());
-            config.setPort(Integer.parseInt(portTextField.getText()));
+            config.setPort(parseInt(portTextField.getText()));
             config.setPlayerName(playerNameTextField.getText());
             config.setExecutablePath(exeTextField.getText());
             setVisible(false);
         }
         try {
-            Files.write(ConfigurationParser.toJson(config), new File(System.getProperty("user.home"), Driver.CONFIGURATION_FILE_NAME), Charsets.UTF_8);
+            write(toJson(config), new File(getProperty("user.home"), Driver.CONFIGURATION_FILE_NAME), Charsets.UTF_8);
         } catch (IOException ex) {
             logger.error("Error persisting configuration", ex);
         }
-        
+        app.resetConfig(config);
         app.initScheduler();
         app.setVisible(true);
     }//GEN-LAST:event_startButtonActionPerformed
@@ -228,7 +231,7 @@ public class Setup extends javax.swing.JFrame {
     }//GEN-LAST:event_masterServerMenuItemActionPerformed
 
     private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
-        System.exit(0);
+        exit(0);
     }//GEN-LAST:event_jMenuItem1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -257,7 +260,7 @@ public class Setup extends javax.swing.JFrame {
                 && isNullOrEmpty(playerNameTextField.getText())
                 && isNullOrEmpty(exeTextField.getText())) {
             try {
-                Ints.tryParse(portTextField.getText());
+                tryParse(portTextField.getText());
             } catch (Exception ex) {
                 errorNotification.setText("Enter a valid Port");
                 return false;

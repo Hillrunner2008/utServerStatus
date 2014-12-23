@@ -18,14 +18,20 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.swing.*;
+import static javax.sound.sampled.AudioSystem.getAudioInputStream;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JTextArea;
+import static javax.swing.SwingUtilities.invokeLater;
+import javax.swing.Timer;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class UrtApp extends javax.swing.JDialog {
 
-    private static final Logger logger = LoggerFactory.getLogger(UrtApp.class);
+    private static final Logger logger = getLogger(UrtApp.class);
 
     public static final String APPLICATION_NAME = "UT Status App";
     private String mapName = "no_image";
@@ -59,6 +65,15 @@ public class UrtApp extends javax.swing.JDialog {
         queryUtil = new QueryUtility(config);
         sysTray = new SystemTrayManager(this);
         serverStatusCheck = new ServerStatusCheck();
+    }
+
+    public void resetConfig(Configuration config) {
+        this.config = config;
+        tableModel = new PlayerTableModel(config);
+        server = new UtServer(config.getIp(), config.getPort());
+        queryUtil = new QueryUtility(config);
+        playerTable.setModel(tableModel);
+        tableModel.fireTableDataChanged();
     }
 
     public void initScheduler() {
@@ -279,11 +294,11 @@ public class UrtApp extends javax.swing.JDialog {
         playerCount = server.getClients();
         mapName = server.getMap();
 
-        List<Player> playerList = server.getPlayers();
+     
+       
         if (playerCount == 0) {
             joinButton.setEnabled(true);
         }
-
 
         ClassLoader classloader = getClass().getClassLoader();
         if (classloader.getResource(mapName + ".jpg") != null) {
@@ -295,7 +310,7 @@ public class UrtApp extends javax.swing.JDialog {
         resultsLabel.setText(server.getCapacityInfo());
         String serverName = server.getName();
         serverNameLabel.setText("Server: " + serverName);
-        tableModel.setData(playerList);
+        tableModel.setData(server.getPlayers());
     }
 
     public static void Launch(String pathToExe, String serverIP) throws Exception {
@@ -361,11 +376,11 @@ public class UrtApp extends javax.swing.JDialog {
         }
 
         private void playSound() {
-            SwingUtilities.invokeLater(new Runnable() {
+            invokeLater(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        AudioInputStream audioIn = AudioSystem.getAudioInputStream(audio);
+                        AudioInputStream audioIn = getAudioInputStream(audio);
                         SoundPlayer player = new SoundPlayer(audioIn);
                         player.start();
                     } catch (Exception ex) {

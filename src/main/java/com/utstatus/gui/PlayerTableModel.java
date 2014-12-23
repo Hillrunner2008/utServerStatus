@@ -13,17 +13,15 @@ import javax.swing.table.AbstractTableModel;
 public class PlayerTableModel extends AbstractTableModel {
 
     private static final String[] columnNames = {"Player Name", "Ping", "Score"};
-    private static final int playerNameColumn = 0;
-    private static final int pingColumn = 1;
-    private static final int scoreColumn = 2;
-    private List<List<String>> tableData;
+    private static final int NAME_COLUMN = 0;
+    private static final int PING_COLUMN = 1;
+    private static final int SCORE_COLUMN = 2;
     private List<Player> players;
     private Player primaryPlayer;
     private final Configuration config;
 
     public PlayerTableModel(Configuration config) {
         this.config = config;
-        tableData = new ArrayList<>();
         players = new ArrayList<>();
         primaryPlayer = null;
     }
@@ -37,7 +35,7 @@ public class PlayerTableModel extends AbstractTableModel {
     }
 
     public int getRowCount() {
-        return (tableData == null) ? 0 : tableData.size();
+        return (players == null) ? 0 : players.size();
     }
 
     public Player getPrimaryPlayer() {
@@ -47,17 +45,10 @@ public class PlayerTableModel extends AbstractTableModel {
     public void setData(List<Player> players) {
         primaryPlayer = null;
         this.players = players;
-        tableData.clear();
         for (Player p : players) {
-            List<String> playerData = new ArrayList<>();
-            playerData.add(p.getName());
-            Integer score = p.getScore();
-            playerData.add(score.toString());
-            Integer ping = p.getPing();
-            playerData.add(ping.toString());
-            tableData.add(playerData);
             if (p.getName().equalsIgnoreCase(config.getPlayerName())) {
                 primaryPlayer = p;
+                break;
             }
         }
         fireTableDataChanged();
@@ -70,15 +61,14 @@ public class PlayerTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        List<String> temp = new ArrayList<>();
-        temp = tableData.get(row);
+        Player player = players.get(row);
         switch (col) {
-            case playerNameColumn:
-                return temp.get(0);
-            case pingColumn:
-                return temp.get(2);
-            case scoreColumn:
-                return temp.get(1);
+            case NAME_COLUMN:
+                return player.getName();
+            case PING_COLUMN:
+                return player.getPing();
+            case SCORE_COLUMN:
+                return player.getScore();
             default:
                 System.out.println("Shouldn't reach here: " + row + " " + col);
                 return null;

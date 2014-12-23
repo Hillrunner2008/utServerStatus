@@ -1,14 +1,16 @@
 package com.utstatus.server;
 
 import com.google.common.base.Optional;
+import static com.google.common.base.Optional.absent;
 import com.utstatus.model.Configuration;
 import com.utstatus.model.UtServer;
-import java.util.Arrays;
+import static com.utstatus.server.QueryParser.prepareParsedResponse;
+import static java.util.Arrays.copyOfRange;
 import java.util.HashSet;
 import java.util.Set;
-import org.apache.commons.lang3.ArrayUtils;
+import static org.apache.commons.lang3.ArrayUtils.indexOf;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  *
@@ -16,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryUtility {
     
-    private static final Logger logger = LoggerFactory.getLogger(QueryUtility.class);
+    private static final Logger logger = getLogger(QueryUtility.class);
     private final Configuration config;
     
     public QueryUtility(Configuration config) {
@@ -40,23 +42,23 @@ public class QueryUtility {
         ServerQuery query = new ServerQuery(config);
         query.send("getstatus");
         String response = query.getResponse();
-        response = QueryParser.prepareParsedResponse(response);
+        response = prepareParsedResponse(response);
         return response;
     }
     
     public String getServerInfo() {
         ServerQuery query = new ServerQuery(config);
         query.send("getinfo");
-        String response = QueryParser.prepareParsedResponse(query.getResponse());
+        String response = prepareParsedResponse(query.getResponse());
         return response;
     }
     
     private static Set<UtServer> parseMasterResponse(byte[] bytes) {
         Set<UtServer> serverList = new HashSet<>();
-        int next, start = ArrayUtils.indexOf(bytes, (byte) 92, 0); //this should always be 22
+        int next, start = indexOf(bytes, (byte) 92, 0); //this should always be 22
         byte b;
         //the implication is this loop will always enter with i on the indexOf a '/':
-        Optional<UtServer> server = Optional.absent();
+        Optional<UtServer> server = absent();
         for (int i = start; i < bytes.length; i++) {
 
             //this might be out of bounds at the end
@@ -68,10 +70,10 @@ public class QueryUtility {
             }
 
             //find the index of the next '/': (this should always be 7 more
-            next = ArrayUtils.indexOf(bytes, (byte) 92, i + 1);
+            next = indexOf(bytes, (byte) 92, i + 1);
             
             try { //hax way to not worry about reaching the end
-                server = parseServerIpHost(Arrays.copyOfRange(bytes, i + 1, next));
+                server = parseServerIpHost(copyOfRange(bytes, i + 1, next));
             } catch (IllegalArgumentException ex) {
                 //do nothing
             }
@@ -86,7 +88,7 @@ public class QueryUtility {
     
     private static Optional<UtServer> parseServerIpHost(byte[] series) {
         if (series.length != 6) {
-            return Optional.absent();
+            return absent();
         }
 
         // the &0xff "turns" the signed byte into an unsigned (in essence)
@@ -97,7 +99,7 @@ public class QueryUtility {
                 + (series[3] & 0xff);
         int port = (series[4] * 256) + series[5];
         if (port <= 0) {
-            return Optional.absent();
+            return absent();
         }
         return Optional.<UtServer>fromNullable(new UtServer(ip, port));
     }

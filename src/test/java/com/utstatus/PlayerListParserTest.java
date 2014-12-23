@@ -1,11 +1,11 @@
 package com.utstatus;
 
 import com.google.common.base.Charsets;
-import com.google.common.base.Splitter;
 import com.google.common.io.CharSource;
-import com.google.common.io.Resources;
+import static com.google.common.io.Resources.asCharSource;
 import com.utstatus.model.Player;
 import java.io.IOException;
+import static java.lang.Integer.parseInt;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,7 +26,7 @@ public class PlayerListParserTest {
     @Test
     public void parseRawResponse() throws IOException {
         URL url = PlayerListParserTest.class.getClassLoader().getResource("rawResponse.txt");
-        CharSource rawResponse = Resources.asCharSource(url, Charsets.UTF_8);
+        CharSource rawResponse = asCharSource(url, Charsets.UTF_8);
 
         List<Player> players = getPlayerList(rawResponse.readLines());
         assertEquals(players.size(), 26);
@@ -41,8 +41,8 @@ public class PlayerListParserTest {
             String line = lines.get(i);
             String[] lineSplit = breakLines(line);
             Player player = new Player();
-            player.setScore(Integer.parseInt(lineSplit[0]));
-            player.setPing(Integer.parseInt(lineSplit[1]));
+            player.setScore(parseInt(lineSplit[0]));
+            player.setPing(parseInt(lineSplit[1]));
             player.setName(lineSplit[2]);
             players.add(player);
         }

@@ -1,8 +1,12 @@
 package com.utstatus.gui;
 
 import com.utstatus.model.UtServer;
-import com.utstatus.server.QueryUtility;
+import static com.utstatus.server.QueryUtility.getMasterList;
+import static java.awt.EventQueue.invokeLater;
 import java.util.Set;
+import static java.util.logging.Logger.getLogger;
+import static javax.swing.UIManager.getInstalledLookAndFeels;
+import static javax.swing.UIManager.setLookAndFeel;
 
 /**
  *
@@ -19,9 +23,9 @@ public class ServerSelectionView extends javax.swing.JFrame {
         initComponents();
         stm = new ServerTableModel();
         serverListTable.setModel(stm);
-        Set<UtServer> servers = QueryUtility.getMasterList();
+        Set<UtServer> servers = getMasterList();
         while (servers.isEmpty()) {
-            servers = QueryUtility.getMasterList();
+            servers = getMasterList();
         }
         stm.setData(servers);
 
@@ -30,22 +34,16 @@ public class ServerSelectionView extends javax.swing.JFrame {
     public static void main(String args[]) {
 
         try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+            for (javax.swing.UIManager.LookAndFeelInfo info : getInstalledLookAndFeels()) {
                 if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                    setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(ServerSelectionView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(ServerSelectionView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(ServerSelectionView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(ServerSelectionView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
+            getLogger(ServerSelectionView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
-        java.awt.EventQueue.invokeLater(new Runnable() {
+        invokeLater(new Runnable() {
             public void run() {
                 new ServerSelectionView().setVisible(true);
             }
@@ -63,8 +61,6 @@ public class ServerSelectionView extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         serverListTable = new javax.swing.JTable();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         jScrollPane1.setViewportView(serverListTable);
 

@@ -1,11 +1,13 @@
 package com.utstatus.server;
 
-import com.google.common.base.Splitter;
+import static com.google.common.base.Splitter.on;
 import com.utstatus.model.Player;
+import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import static java.util.regex.Pattern.compile;
 
 /**
  *
@@ -14,20 +16,20 @@ import java.util.regex.Pattern;
 public class QueryParser {
 
     public static String stripPrintCommands(String input) {
-        Pattern r = Pattern.compile("....print\n");
+        Pattern r = compile("....print\n");
         Matcher m = r.matcher(input);
         return m.replaceAll("");
     }
 
     public static String parseStatusResponse(String resp) {
-        Pattern r = Pattern.compile("....statusResponse\n");
+        Pattern r = compile("....statusResponse\n");
         Matcher m = r.matcher(resp);
         resp = m.replaceAll("");
         return resp;
     }
 
     public static String parseInfoResponse(String resp) {
-        Pattern r = Pattern.compile("....infoResponse\n");
+        Pattern r = compile("....infoResponse\n");
         Matcher m = r.matcher(resp);
         resp = m.replaceAll("");
         return resp;
@@ -40,7 +42,7 @@ public class QueryParser {
     }
 
     public static String stripColors(String input) {
-        Pattern r = Pattern.compile("\\^.");
+        Pattern r = compile("\\^.");
         Matcher m = r.matcher(input);
         return m.replaceAll("");
     }
@@ -48,7 +50,7 @@ public class QueryParser {
     public static List<Player> getPlayerList(String rawReponse) {
         List<Player> players = new ArrayList<>();
         try {
-            List<String> lines = Splitter.on("\n").omitEmptyStrings().trimResults().splitToList(rawReponse);
+            List<String> lines = on("\n").omitEmptyStrings().trimResults().splitToList(rawReponse);
 
             for (int i = 0; i < lines.size(); i++) {
                 if (i == 0) {
@@ -57,8 +59,8 @@ public class QueryParser {
                 String line = lines.get(i);
                 String[] lineSplit = breakLines(line);
                 Player player = new Player();
-                player.setScore(Integer.parseInt(lineSplit[0]));
-                player.setPing(Integer.parseInt(lineSplit[1]));
+                player.setScore(parseInt(lineSplit[0]));
+                player.setPing(parseInt(lineSplit[1]));
                 String playName = lineSplit[2];
                 if (player.getPing() == 0) {
                     playName = playName + " (BOT)";

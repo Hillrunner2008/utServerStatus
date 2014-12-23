@@ -38,13 +38,7 @@ public class Player {
     }
 
     public boolean isIsBot() {
-        return isBot;
+        return ping == 0;
     }
-
-    public void setIsBot(boolean isBot) {
-        this.isBot = isBot;
-    }
-
-   
 
 }

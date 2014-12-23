@@ -1,10 +1,17 @@
 package com.utstatus.model;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Splitter;
-import static com.utstatus.model.ResponseConstants.*;
+import static com.google.common.base.CharMatcher.is;
+import static com.google.common.base.Splitter.on;
+import com.google.common.base.Strings;
+import static com.utstatus.model.ResponseConstants.CLIENTS;
+import static com.utstatus.model.ResponseConstants.GAMETYPE;
+import static com.utstatus.model.ResponseConstants.HOSTNAME;
+import static com.utstatus.model.ResponseConstants.MAP_NAME;
+import static com.utstatus.model.ResponseConstants.MAX_CLIENTS;
+import static com.utstatus.model.ServerType.findByValue;
 import static com.utstatus.server.QueryParser.stripColors;
 import com.utstatus.server.QueryUtility;
+import static java.lang.Integer.parseInt;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,7 +19,7 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Objects;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  *
@@ -20,7 +27,7 @@ import org.slf4j.LoggerFactory;
  */
 public class UtServer {
 
-    private static final Logger logger = LoggerFactory.getLogger(UtServer.class);
+    private static final Logger logger = getLogger(UtServer.class);
 
     private String ip;
     private int port;
@@ -49,16 +56,14 @@ public class UtServer {
     private void init() {
         Configuration serverConfig = new Configuration(ip, port);
         QueryUtility queryUtil = new QueryUtility(serverConfig);
-        String infoResponse = queryUtil.getServerInfo();
-//        String statusResponse = queryUtil.getServerStatus();
-        initServerInfo(infoResponse);
-//        initServerStatus(statusResponse);
+//        String infoResponse = queryUtil.getServerInfo();
+        String statusResponse = queryUtil.getServerStatus();
+//        initServerInfo(infoResponse);
+        initServerStatus(statusResponse);
     }
 
-    private void initServerInfo(String infoResponse) {
-        logger.debug(infoResponse);
-        List<String> responseContent = Splitter.on('\\').omitEmptyStrings().trimResults().splitToList(infoResponse);
-        responseContent = responseContent.subList(1, responseContent.size());
+    private void parseStatusResponse(String statusFirstLine) {
+        List<String> responseContent = on('\\').omitEmptyStrings().trimResults().splitToList(statusFirstLine);
         ListIterator<String> iter = responseContent.listIterator();
         Map<String, String> serverInfoMap = new HashMap<>();
         while (iter.hasNext()) {
@@ -66,27 +71,33 @@ public class UtServer {
         }
         name = stripColors(serverInfoMap.get(HOSTNAME));
         map = serverInfoMap.get(MAP_NAME);
-        type = ServerType.findByValue(Integer.parseInt(serverInfoMap.get(GAMETYPE)));
-        clients = Integer.parseInt(serverInfoMap.get(CLIENTS));
-        maxClients = Integer.parseInt(serverInfoMap.get(MAX_CLIENTS));
-        capacityInfo = "(" + clients + "/" + maxClients + ")";
-        isEmpty = clients == 0;
-        isFull = clients == maxClients;
+        type = findByValue(parseInt(serverInfoMap.get(GAMETYPE)));
+        maxClients = parseInt(serverInfoMap.get(MAX_CLIENTS));
+
     }
 
     private void initServerStatus(String statusResponse) {
+        if (Strings.isNullOrEmpty(statusResponse)) {
+            return;
+        }
         logger.debug(statusResponse);
         players = new ArrayList<>();
-        List<String> responseContent = Splitter.on('\n').omitEmptyStrings().trimResults().splitToList(statusResponse);
+        List<String> responseContent = on('\n').omitEmptyStrings().trimResults().splitToList(statusResponse);
+        String firstLine = responseContent.subList(0, 1).get(0);
+        parseStatusResponse(firstLine);
         responseContent = responseContent.subList(1, responseContent.size());
         for (String playerLine : responseContent) {
-            List<String> playerDetails = Splitter.on(' ').omitEmptyStrings().trimResults().splitToList(playerLine);
+            List<String> playerDetails = on(' ').omitEmptyStrings().trimResults().splitToList(playerLine);
             Player player = new Player();
-            player.setScore(Integer.parseInt(playerDetails.get(0)));
-            player.setPing(Integer.parseInt(playerDetails.get(1)));
-            player.setName(CharMatcher.is('\"').trimFrom(playerDetails.get(2)));
+            player.setScore(parseInt(playerDetails.get(0)));
+            player.setPing(parseInt(playerDetails.get(1)));
+            player.setName(is('\"').trimFrom(playerDetails.get(2)));
             players.add(player);
         }
+        clients = players.size();
+        capacityInfo = "(" + clients + "/" + maxClients + ")";
+        isEmpty = clients == 0;
+        isFull = clients == maxClients;
 
     }
 
@@ -108,11 +119,7 @@ public class UtServer {
 
     public int getBotCount() {
         int botCount = 0;
-        for (Player player : players) {
-            if (player.isIsBot()) {
-                botCount++;
-            }
-        }
+        botCount = players.stream().filter((player) -> (player.isIsBot())).map((_item) -> 1).reduce(botCount, Integer::sum);
         return botCount;
     }
 

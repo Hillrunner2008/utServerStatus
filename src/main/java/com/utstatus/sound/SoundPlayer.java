@@ -3,19 +3,19 @@ package com.utstatus.sound;
 import java.io.IOException;
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
+import static javax.sound.sampled.AudioSystem.getLine;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.SourceDataLine;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 public class SoundPlayer extends Thread {
 
     private AudioInputStream is = null;
     private final int EXTERNAL_BUFFER_SIZE = 524288;
-    private static final Logger logger = LoggerFactory.getLogger(SoundPlayer.class);
+    private static final Logger logger = getLogger(SoundPlayer.class);
 
     public SoundPlayer(AudioInputStream input) {
         is = input;
@@ -35,7 +35,7 @@ public class SoundPlayer extends Thread {
         DataLine.Info info = new DataLine.Info(SourceDataLine.class, format);
 
         try {
-            auline = (SourceDataLine) AudioSystem.getLine(info);
+            auline = (SourceDataLine) getLine(info);
             auline.open(format);
         } catch (LineUnavailableException e) {
             logger.error(e.getMessage(), e);

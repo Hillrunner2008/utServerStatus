@@ -6,10 +6,11 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import static java.net.InetAddress.getByName;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * A class to query Q3 based games, like Urban Terror.
@@ -23,7 +24,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ServerQuery {
 
-    private static final Logger logger = LoggerFactory.getLogger(ServerQuery.class);
+    private static final Logger logger = getLogger(ServerQuery.class);
 
     private final byte oob = (byte) 0xff;
     private int port;
@@ -36,7 +37,7 @@ public class ServerQuery {
         this.port = config.getPort();
         try {
             this.ds = new DatagramSocket();
-            this.ia = InetAddress.getByName(config.getIp());
+            this.ia = getByName(config.getIp());
         } catch (UnknownHostException | SocketException ex) {
             logger.error("Could not connect to {}", config.getIp(), ex);
         }

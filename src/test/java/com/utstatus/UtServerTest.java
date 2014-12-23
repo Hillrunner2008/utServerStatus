@@ -6,12 +6,11 @@
 package com.utstatus;
 
 import com.utstatus.model.Configuration;
-import com.utstatus.model.Player;
 import com.utstatus.model.UtServer;
-import org.junit.Assert;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  *
@@ -19,14 +18,14 @@ import org.slf4j.LoggerFactory;
  */
 public class UtServerTest {
     
-    private static final Logger logger = LoggerFactory.getLogger(UtServerTest.class);
+    private static final Logger logger = getLogger(UtServerTest.class);
     
     @Test
     public void defaultServerTest() {
         Configuration config = new Configuration();
         UtServer defaultServer = new UtServer(config.getIp(), config.getPort());
         defaultServer.refreshServer();
-        Assert.assertNotNull(defaultServer.getName());
-        Assert.assertNotNull(defaultServer.getCapacityInfo());
+        assertNotNull(defaultServer.getName());
+        assertNotNull(defaultServer.getCapacityInfo());
     }
 }
